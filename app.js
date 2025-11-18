@@ -9,7 +9,7 @@ db.sync()
   .then(() => console.log("Database synced"))
   .catch(err => console.log(err));
 
-
+app.use("/", require("./routes/authRoutes"));
 app.use("/expenses", require("./routes/expenseRoutes"));
 
 app.listen(3000, () => {
