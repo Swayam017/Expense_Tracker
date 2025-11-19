@@ -7,13 +7,33 @@
   <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
+  <script>
+// Prevent opening expense page without login
+if (!localStorage.getItem("logged_in")) {
+    window.location.href = "/login.html";
+}
+</script>
   <div class="container">
     <h2> Expense Tracker</h2>
+    
+    <button id="logoutBtn" class="logout">Logout</button>
 
     <form id="expense-form">
       <input type="text" id="description" placeholder="Expense Description" required />
       <input type="number" id="amount" placeholder="Amount (₹)" required />
       <input type="date" id="date" required />
+
+          <!-- CATEGORY DROPDOWN ADDED -->
+      <select id="category" required>
+        <option value="">Select Category</option>
+        <option value="Food">Food</option>
+        <option value="Petrol">Petrol</option>
+        <option value="Shopping">Shopping</option>
+        <option value="Travel">Travel</option>
+        <option value="Salary">Salary</option>
+      </select>
+
+
       <button type="submit" id="add-btn">Add Expense</button>
       <button type="button" id="update-btn" style="display:none;">Update</button>
     </form>
@@ -24,6 +44,7 @@
           <th>Description</th>
           <th>Amount (₹)</th>
           <th>Date</th>
+          <th>Category</th>
           <th>Action</th>
         </tr>
       </thead>
