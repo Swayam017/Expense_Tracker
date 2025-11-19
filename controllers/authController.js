@@ -1,5 +1,8 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const secretKey = "MY_SECRET_KEY";  // keep same as auth.js
+
 
 exports.signUp = async (req, res) => {
     try {
@@ -23,26 +26,16 @@ exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        if (!email || !password) {
-            return res.status(400).json({ error: "All fields are required" });
-        }
-
         const user = await User.findOne({ where: { email } });
-
-        if (!user) {
-            return res.status(400).json({ error: "Invalid email or password" });
-        }
+        if (!user) return res.status(400).json({ error: "Invalid email or password" });
 
         const match = await bcrypt.compare(password, user.password);
+        if (!match) return res.status(400).json({ error: "Invalid email or password" });
 
-        if (!match) {
-            return res.status(400).json({ error: "Invalid email or password" });
-        }
+        const token = jwt.sign({ userId: user.id }, secretKey, { expiresIn: "24h" });
 
-        return res.json({ message: "Login successful" });
-
+        res.json({ message: "Login successful", token });
     } catch (err) {
-        console.error(err);
-        return res.status(500).json({ error: "Server error" });
+        res.status(500).json({ error: "Server error" });
     }
 };

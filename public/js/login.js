@@ -25,10 +25,11 @@ loginBtn.addEventListener('click', async () => {
       errorMsg.textContent = data.error || "Invalid email or password.";
       return;
     }
-        // Mark user as logged in
-    localStorage.setItem("logged_in", "true");
 
-    // If login is successful, redirect to expense page
+    // Save JWT token
+    localStorage.setItem("token", data.token);
+
+    // Redirect to expenses page
     window.location.href = "/expenses.html";
 
   } catch (err) {

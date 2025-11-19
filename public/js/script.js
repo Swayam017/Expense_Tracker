@@ -1,5 +1,5 @@
-// BLOCK EXPENSE PAGE IF NOT LOGGED IN
-if (!localStorage.getItem("logged_in")) {
+// Redirect to login if no token
+if (!localStorage.getItem("token")) {
   window.location.href = "/login.html";
 }
 
@@ -8,24 +8,37 @@ const expenseList = document.getElementById('expense-list');
 const totalElement = document.getElementById('total');
 const addBtn = document.getElementById('add-btn');
 const updateBtn = document.getElementById('update-btn');
-const logoutBtn = document.getElementById("logoutBtn");
-
-logoutBtn.addEventListener("click", () => {
-    localStorage.removeItem("logged_in");
-    window.location.href = "/login.html";
-});
+const logoutBtn = document.getElementById('logoutBtn');
 
 let editId = null;
 
-// Fetch expenses
+// Logout
+logoutBtn.addEventListener("click", () => {
+    localStorage.removeItem("token");
+    window.location.href = "/login.html";
+});
+
+// Load all expenses
 async function loadExpenses() {
-  const res = await fetch("http://localhost:3000/expenses");
-  const expenses = await res.json();
+  const token = localStorage.getItem("token");
+
+  const res = await fetch("http://localhost:3000/expenses", {
+    headers: {
+      "Authorization": token
+    }
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    console.error("Error:", data.error);
+    return;
+  }
 
   expenseList.innerHTML = "";
   let total = 0;
 
-  expenses.forEach(exp => {
+  data.forEach(exp => {
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
@@ -55,9 +68,14 @@ form.addEventListener("submit", async (e) => {
   const date = document.getElementById("date").value;
   const category = document.getElementById("category").value;
 
+  const token = localStorage.getItem("token");
+
   await fetch("http://localhost:3000/expenses", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": token
+    },
     body: JSON.stringify({ description, amount, date, category })
   });
 
@@ -67,7 +85,15 @@ form.addEventListener("submit", async (e) => {
 
 // Delete
 async function deleteExpense(id) {
-  await fetch(`http://localhost:3000/expenses/${id}`, { method: "DELETE" });
+  const token = localStorage.getItem("token");
+
+  await fetch(`http://localhost:3000/expenses/${id}`, {
+    method: "DELETE",
+    headers: {
+      "Authorization": token
+    }
+  });
+
   loadExpenses();
 }
 
@@ -90,9 +116,14 @@ updateBtn.addEventListener("click", async () => {
   const date = document.getElementById("date").value;
   const category = document.getElementById("category").value;
 
+  const token = localStorage.getItem("token");
+
   await fetch(`http://localhost:3000/expenses/${editId}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": token
+    },
     body: JSON.stringify({ description, amount, date, category })
   });
 
@@ -104,5 +135,5 @@ updateBtn.addEventListener("click", async () => {
   loadExpenses();
 });
 
-// Load initial data
+// Load initial
 loadExpenses();
