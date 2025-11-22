@@ -8,22 +8,26 @@
 </head>
 <body>
   <script>
-// Prevent opening expense page without login
-if (!localStorage.getItem("logged_in")) {
-    window.location.href = "/login.html";
-}
-</script>
+    // Prevent opening expense page without login
+    if (!localStorage.getItem("logged_in")) {
+      window.location.href = "/login.html";
+    }
+  </script>
+
   <div class="container">
-    <h2> Expense Tracker</h2>
-    
+    <h2>Expense Tracker</h2>
+
     <button id="logoutBtn" class="logout">Logout</button>
+
+    <!-- BUY PREMIUM BUTTON -->
+    <button id="buyPremiumBtn" class="premium-btn">Buy Premium ⭐</button>
 
     <form id="expense-form">
       <input type="text" id="description" placeholder="Expense Description" required />
       <input type="number" id="amount" placeholder="Amount (₹)" required />
       <input type="date" id="date" required />
 
-          <!-- CATEGORY DROPDOWN ADDED -->
+      <!-- CATEGORY DROPDOWN -->
       <select id="category" required>
         <option value="">Select Category</option>
         <option value="Food">Food</option>
@@ -32,7 +36,6 @@ if (!localStorage.getItem("logged_in")) {
         <option value="Travel">Travel</option>
         <option value="Salary">Salary</option>
       </select>
-
 
       <button type="submit" id="add-btn">Add Expense</button>
       <button type="button" id="update-btn" style="display:none;">Update</button>
@@ -54,6 +57,16 @@ if (!localStorage.getItem("logged_in")) {
     <div class="total" id="total">Total: ₹0</div>
   </div>
 
+  <!-- MAIN APP JS -->
   <script src="/js/script.js"></script>
+
+  <!-- BUY PREMIUM BUTTON HANDLER -->
+  <script>
+    document.getElementById("buyPremiumBtn").addEventListener("click", () => {
+      // Redirect to payment page
+      window.location.href = "/payment";
+    });
+  </script>
+
 </body>
 </html>

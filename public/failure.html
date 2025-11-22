@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Failed</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffe6e6;
+            text-align: center;
+            padding-top: 80px;
+        }
+        .card {
+            background: white;
+            border-radius: 10px;
+            width: 350px;
+            margin: auto;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.15);
+        }
+        h1 {
+            color: #d9534f;
+        }
+        p {
+            color: #555;
+        }
+        a {
+            margin-top: 15px;
+            display: inline-block;
+            padding: 10px 20px;
+            background: #0275d8;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        a:hover {
+            background: #0256a3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>Payment Failed ❌</h1>
+        <p>Unfortunately, your payment could not be completed.</p>
+        <p>Please try again or check your payment method.</p>
+
+        <a href="/payment">Try Again</a><br><br>
+        <a href="/expenses">Back to Expense Tracker</a>
+    </div>
+
+</body>
+</html>
