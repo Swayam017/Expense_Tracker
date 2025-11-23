@@ -6,10 +6,12 @@
   <title>Expense Tracker</title>
   <link rel="stylesheet" href="/css/style.css" />
 </head>
+
 <body>
+
   <script>
-    // Prevent opening expense page without login
-    if (!localStorage.getItem("logged_in")) {
+    // Redirect if token not found
+    if (!localStorage.getItem("token")) {
       window.location.href = "/login.html";
     }
   </script>
@@ -17,17 +19,22 @@
   <div class="container">
     <h2>Expense Tracker</h2>
 
+    <!-- Logout -->
     <button id="logoutBtn" class="logout">Logout</button>
 
     <!-- BUY PREMIUM BUTTON -->
     <button id="buyPremiumBtn" class="premium-btn">Buy Premium ⭐</button>
+
+    <!-- LEADERBOARD BUTTON -->
+    <button id="showLeaderboard" style="display:none; margin-top: 20px;">
+      View Leaderboard 🏆
+    </button>
 
     <form id="expense-form">
       <input type="text" id="description" placeholder="Expense Description" required />
       <input type="number" id="amount" placeholder="Amount (₹)" required />
       <input type="date" id="date" required />
 
-      <!-- CATEGORY DROPDOWN -->
       <select id="category" required>
         <option value="">Select Category</option>
         <option value="Food">Food</option>
@@ -55,15 +62,18 @@
     </table>
 
     <div class="total" id="total">Total: ₹0</div>
+
+    <!-- Leaderboard container -->
+    <div id="leaderboard"></div>
+
   </div>
 
-  <!-- MAIN APP JS -->
+  <!-- MAIN JS -->
   <script src="/js/script.js"></script>
 
   <!-- BUY PREMIUM BUTTON HANDLER -->
   <script>
     document.getElementById("buyPremiumBtn").addEventListener("click", () => {
-      // Redirect to payment page
       window.location.href = "/payment";
     });
   </script>

@@ -12,6 +12,8 @@ db.sync({ alter:true })
 app.use("/", require("./routes/authRoutes"));
 app.use("/expenses", require("./routes/expenseRoutes"));
 app.use("/payment", require("./routes/paymentRoutes"));
+app.use("/premium",require("./routes/premium"));
+
 
 
 

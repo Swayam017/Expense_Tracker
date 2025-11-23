@@ -12,13 +12,13 @@ const logoutBtn = document.getElementById('logoutBtn');
 
 let editId = null;
 
-// Logout
+// LOGOUT
 logoutBtn.addEventListener("click", () => {
-    localStorage.removeItem("token");
-    window.location.href = "/login.html";
+  localStorage.removeItem("token");
+  window.location.href = "/login.html";
 });
 
-// Load all expenses
+// LOAD ALL EXPENSES
 async function loadExpenses() {
   const token = localStorage.getItem("token");
 
@@ -59,7 +59,7 @@ async function loadExpenses() {
   totalElement.textContent = `Total: ₹${total}`;
 }
 
-// Add expense
+// ADD EXPENSE
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -83,7 +83,7 @@ form.addEventListener("submit", async (e) => {
   loadExpenses();
 });
 
-// Delete
+// DELETE EXPENSE
 async function deleteExpense(id) {
   const token = localStorage.getItem("token");
 
@@ -97,7 +97,7 @@ async function deleteExpense(id) {
   loadExpenses();
 }
 
-// Edit
+// EDIT EXPENSE
 function editExpense(id, description, amount, date, category) {
   editId = id;
   document.getElementById("description").value = description;
@@ -109,7 +109,7 @@ function editExpense(id, description, amount, date, category) {
   updateBtn.style.display = "inline-block";
 }
 
-// Update
+// UPDATE EXPENSE
 updateBtn.addEventListener("click", async () => {
   const description = document.getElementById("description").value;
   const amount = document.getElementById("amount").value;
@@ -135,5 +135,55 @@ updateBtn.addEventListener("click", async () => {
   loadExpenses();
 });
 
-// Load initial
+// ---------------- PREMIUM LOGIC ----------------
+
+// SHOW LEADERBOARD BUTTON ONLY IF PREMIUM USER
+const token2 = localStorage.getItem("token");
+if (token2) {
+  const payload = JSON.parse(atob(token2.split(".")[1]));
+
+  if (payload.isPremium) {
+    document.getElementById("showLeaderboard").style.display = "block";
+  }
+}
+
+// WHEN USER CLICKS LEADERBOARD BUTTON
+document.getElementById("showLeaderboard").addEventListener("click", async () => {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch("http://localhost:3000/premium/leaderboard", {
+    headers: { Authorization: token }
+  });
+
+  const data = await res.json();
+  displayLeaderboard(data.leaderboard);
+});
+
+// DISPLAY LEADERBOARD TABLE
+function displayLeaderboard(list) {
+  let html = `
+    <h2>🏆 Leaderboard</h2>
+    <table border="1" cellpadding="8" style="width: 100%; margin-top: 20px;">
+      <tr>
+        <th>Rank</th>
+        <th>User</th>
+        <th>Total Spent</th>
+      </tr>
+  `;
+
+  list.forEach((user, index) => {
+    html += `
+      <tr>
+        <td>${index + 1}</td>
+        <td>${user.name}</td>
+        <td>₹${user.totalSpent || 0}</td>
+      </tr>
+    `;
+  });
+
+  html += "</table>";
+  document.getElementById("leaderboard").innerHTML = html;
+}
+
+// LOAD EXPENSES ON PAGE LOAD
 loadExpenses();

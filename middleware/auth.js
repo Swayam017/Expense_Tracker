@@ -14,3 +14,10 @@ exports.authenticate = (req, res, next) => {
     return res.status(401).json({ error: "Invalid token" });
   }
 };
+// Premium middleware
+exports.isPremium = (req, res, next) => {
+  if (!req.user.isPremium) {
+    return res.status(403).json({ message: "Premium required" });
+  }
+  next();
+};
