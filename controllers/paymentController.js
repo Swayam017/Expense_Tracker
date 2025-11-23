@@ -12,7 +12,7 @@ exports.processPayment = async (req, res) => {
     const orderAmount = 2000;
     const customerId = "1";
     const customerPhone = "9999999999";
-    const token = req.headers.authorization?.split(" ")[1];
+     
 
     try {
         const paymentSessionId = await createOrder(
@@ -20,8 +20,8 @@ exports.processPayment = async (req, res) => {
             orderAmount,
             "INR",
             customerId,
-            customerPhone,
-            token
+            customerPhone
+            
         );
 
         res.json({ paymentSessionId, orderId });
@@ -35,7 +35,7 @@ exports.processPayment = async (req, res) => {
 // CHECK PAYMENT STATUS
 exports.getPaymentStatus = async (req, res) => {
     const orderId = req.query.order_id;
-  const token = req.query.token; 
+  
 
     try {
         const status = await getPaymentStatusFromCF(orderId);
@@ -50,4 +50,3 @@ exports.getPaymentStatus = async (req, res) => {
         return res.status(500).send("Error verifying payment");
     }
 };
-

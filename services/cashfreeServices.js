@@ -6,7 +6,7 @@ const cashfree = new Cashfree(CFEnvironment.SANDBOX, "TEST430329ae80e0f32e41a393
 const expiryDate = new Date(Date.now() + 60 * 60 * 1000);
 const formattedExpiryDate = expiryDate.toISOString();
 
-exports.createOrder = async (orderId, orderAmount, orderCurrency='INR', customerId, customerPhone,token) => {
+exports.createOrder = async (orderId, orderAmount, orderCurrency='INR', customerId, customerPhone) => {
     try {
         const request = {
             order_amount: orderAmount,
@@ -17,7 +17,7 @@ exports.createOrder = async (orderId, orderAmount, orderCurrency='INR', customer
                 customer_phone: customerPhone,
             },
             order_meta: {
-               return_url: `http://localhost:3000/payment/payment-status?order_id=${orderId}&token=${token}`,
+               return_url: `http://localhost:3000/payment/payment-status?order_id=${orderId}`,
                 payment_methods :"ccc,upi,nb"
             },
             order_expiry_time:formattedExpiryDate,

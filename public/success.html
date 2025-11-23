@@ -1,25 +1,21 @@
 <!DOCTYPE html>
 <html>
 <body>
-  <h1>Payment Successful! 🎉</h1>
-  <p>Your premium has been activated.</p>
+    <h1>Payment Successful 🎉</h1>
+    <p>Premium activated.</p>
 
-  <button onclick="goBack()">Go back to Expense Tracker</button>
+    <button onclick="goBack()">Go to Expense Tracker</button>
 
 <script>
-  const url = new URL(window.location.href);
-  const token = url.searchParams.get("token");
+function goBack() {
+    // Your frontend page
+    window.location.href = "/expenses.html"; 
+}
 
-  if (token && token !== "undefined") {
-    localStorage.setItem("token", token);
-  } else {
-    alert("Session expired. Please login again.");
-    window.location.href = "/login.html";
-  }
-
-  function goBack() {
-    window.location.href = "/expenses";
-  }
+// Auto redirect after 3s
+setTimeout(() => {
+    window.location.href = "/expenses.html";
+}, 3000);
 </script>
 
 </body>
