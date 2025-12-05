@@ -97,3 +97,20 @@ th, td {
   color: #fff;
   border-radius: 5px;
 }
+.premium-btn {
+  position: absolute;
+  top: 20px;
+  right: 150px;   /* Adjust so it doesn't overlap Logout */
+  background: gold;
+  color: black;
+  font-weight: bold;
+  padding: 8px 16px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+}
+
+.premium-btn:hover {
+  background: #e6c200;
+}
+

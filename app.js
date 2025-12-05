@@ -5,7 +5,7 @@ const db = require("./utils/db_connections");
 app.use(express.json());
 app.use(express.static("public"));
 // Sync database
-db.sync()
+db.sync({alter:true})
   .then(() => console.log("Database synced"))
   .catch(err => console.log(err));
 

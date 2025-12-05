@@ -1,23 +1,39 @@
 const jwt = require("jsonwebtoken");
 const secretKey = "MY_SECRET_KEY";
+const  User = require("../models/User");
 
-exports.authenticate = (req, res, next) => {
+exports.authenticate = async (req, res, next) => {
   try {
-    const token = req.header("Authorization");
-    if (!token) return res.status(401).json({ error: "Token missing" });
+    let token = req.header("Authorization");   // 🔹 use let
+
+    if (!token) {
+      return res.status(401).json({ error: "Token missing" });
+    }
+
+    // 🔹 Strip "Bearer " if present
+    if (token.startsWith("Bearer ")) {
+      token = token.slice(7);
+    }
 
     const decoded = jwt.verify(token, secretKey);
-    req.user = decoded;
 
+    const user = await User.findByPk(decoded.userId);
+    if (!user) {
+      return res.status(401).json({ error: "User not found" });
+    }
+
+    req.user = user;
     next();
-  } catch (error) {
+
+  } catch (err) {
+    console.error("AUTH ERROR:", err.message);
     return res.status(401).json({ error: "Invalid token" });
   }
 };
-// Premium middleware
+
 exports.isPremium = (req, res, next) => {
   if (!req.user.isPremium) {
-    return res.status(403).json({ message: "Premium required" });
+    return res.status(403).json({ error: "Not a Premium User" });
   }
   next();
 };

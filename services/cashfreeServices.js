@@ -13,12 +13,13 @@ exports.createOrder = async (orderId, orderAmount, orderCurrency='INR', customer
             order_currency: orderCurrency,
             order_id: orderId,
             customer_details: {
-                customer_id: customerId,
+                 customer_id: String(customerId),
                 customer_phone: customerPhone,
             },
+              payment_methods: "cc,nb,upi,paylater",
             order_meta: {
-               return_url: `http://localhost:3000/payment/payment-status?order_id=${orderId}`,
-                payment_methods :"ccc,upi,nb"
+               return_url: `http://localhost:3000/payment/payment-status?order_id=${orderId}&user_id=${customerId}`,
+                
             },
             order_expiry_time:formattedExpiryDate,
         };
@@ -39,21 +40,27 @@ exports.getPaymentStatusFromCF = async (orderId) => {
         console.log("Checking Status For:", orderId);
 
         const response = await cashfree.PGOrderFetchPayments(orderId);
-        let getOrderResponse = response.data;
-        console.log("Raw CF Response:", getOrderResponse);
+        let payments = response.data;
+
+        // If NOT array, wrap inside array
+        if (!Array.isArray(payments)) {
+            payments = [payments];
+        }
+
         let orderStatus;
-       
-if (getOrderResponse.filter(transaction => transaction.payment_status === "SUCCESS").length > 0) {
-    orderStatus = "Success"
-} else if (getOrderResponse.filter(transaction => transaction.payment_status === "PENDING").length > 0) {
-    orderStatus = "Pending"
-} else {
-    orderStatus = "Failure"
-}
+
+        if (payments.some(txn => txn.payment_status === "SUCCESS")) {
+            orderStatus = "Success";
+        } else if (payments.some(txn => txn.payment_status === "PENDING")) {
+            orderStatus = "Pending";
+        } else {
+            orderStatus = "Failure";
+        }
+
         return orderStatus;
 
     } catch (error) {
         console.error("Error fetching order status:", error.response?.data || error.message);
-       
+        return "Failure";
     }
 };

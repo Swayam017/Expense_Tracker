@@ -1,26 +1,30 @@
-const cashfree = Cashfree({
-    mode: "sandbox",
-});
+const cashfree = Cashfree({ mode: "sandbox" });
 
-document.getElementById("renderBtn").addEventListener("click",async()=>{
-    try{
-        //fetch payment session id from backend
-        const reponse = await fetch("http://localhost:3000/payment/pay",{
+document.getElementById("renderBtn").addEventListener("click", async () => {
+    try {
+        let token = localStorage.getItem("token");
+        //  Send token in Authorization header
+        const response = await fetch("http://localhost:3000/payment/pay", {
             method: "POST",
+            headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token
+    }
+
         });
-        const data = await reponse.json();
+
+        const data = await response.json();
+
         const paymentSessionId = data.paymentSessionId;
 
-        //intialize checkout options
         let checkoutOptions = {
-            paymentSessionId:paymentSessionId,
-            //?New page payment options
-            redirectTarget: "_self", //default
+            paymentSessionId: paymentSessionId,
+            redirectTarget: "_self",
         };
-        //start the checkout process
+
         await cashfree.checkout(checkoutOptions);
 
-    }catch(err){
-        console.error("Error:",err);
+    } catch (err) {
+        console.error("Error:", err);
     }
 });

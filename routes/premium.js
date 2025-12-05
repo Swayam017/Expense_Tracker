@@ -12,25 +12,31 @@ router.get("/leaderboard", authenticate, isPremium, async (req, res) => {
     const leaderboard = await User.findAll({
       attributes: [
         "id",
-        "name",
+        "username",  
+
+        // SUM of all expenses by this user
         [
-          Sequelize.fn("SUM", Sequelize.col("expenses.amount")),
+          Sequelize.fn("SUM", Sequelize.col("Expenses.amount")),
           "totalSpent"
         ]
       ],
+
       include: [
         {
           model: Expense,
-          attributes: [] // do not return full expense list
+          attributes: []  
         }
       ],
-      group: ["User.id"],               // group by user
-      order: [[Sequelize.literal("totalSpent"), "DESC"]] // highest spender first
+
+      group: ["User.id", "User.username"],  
+
+      order: [[Sequelize.literal("totalSpent"), "DESC"]]
     });
 
     res.json({ success: true, leaderboard });
+
   } catch (err) {
-    console.error(err);
+    console.error("LEADERBOARD ERROR:", err);
     res.status(500).json({ success: false, message: "Server error" });
   }
 });

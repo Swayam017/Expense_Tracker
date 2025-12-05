@@ -3,7 +3,7 @@ const Expense = require("../models/Expense");
 // CREATE
 exports.createExpense = async (req, res) => {
     try {
-        const userId = req.user.userId;
+        const userId = req.user.id;
         const { description, amount, date, category } = req.body;
 
         const expense = await Expense.create({
@@ -11,7 +11,7 @@ exports.createExpense = async (req, res) => {
             amount,
             date,
             category,
-            userId
+            UserId: userId    // FIXED
         });
 
         res.status(201).json(expense);
@@ -23,10 +23,10 @@ exports.createExpense = async (req, res) => {
 // GET USER EXPENSES
 exports.getExpenses = async (req, res) => {
     try {
-        const userId = req.user.userId;
+        const userId = req.user.id;
 
         const expenses = await Expense.findAll({
-            where: { userId }
+            where: { UserId: userId }    // FIXED
         });
 
         res.json(expenses);
@@ -38,11 +38,11 @@ exports.getExpenses = async (req, res) => {
 // DELETE
 exports.deleteExpense = async (req, res) => {
     try {
-        const userId = req.user.userId;
+        const userId = req.user.id;
         const id = req.params.id;
 
         const deleted = await Expense.destroy({
-            where: { id, userId }
+            where: { id, UserId: userId }   // FIXED
         });
 
         if (!deleted) return res.status(403).json({ error: "Unauthorized delete" });
@@ -56,11 +56,11 @@ exports.deleteExpense = async (req, res) => {
 // UPDATE
 exports.updateExpense = async (req, res) => {
     try {
-        const userId = req.user.userId;
+        const userId = req.user.id;
         const id = req.params.id;
 
         const updated = await Expense.update(req.body, {
-            where: { id, userId }
+            where: { id, UserId: userId }   // FIXED
         });
 
         if (!updated[0]) return res.status(403).json({ error: "Unauthorized update" });

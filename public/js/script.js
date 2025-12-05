@@ -9,6 +9,8 @@ const totalElement = document.getElementById('total');
 const addBtn = document.getElementById('add-btn');
 const updateBtn = document.getElementById('update-btn');
 const logoutBtn = document.getElementById('logoutBtn');
+const buyPremiumBtn = document.getElementById("buyPremiumBtn");
+const leaderboardBtn = document.getElementById("showLeaderboard");
 
 let editId = null;
 
@@ -18,14 +20,15 @@ logoutBtn.addEventListener("click", () => {
   window.location.href = "/login.html";
 });
 
+// Helper to get Bearer token
+function getAuthHeader() {
+  return { "Authorization": "Bearer " + localStorage.getItem("token") };
+}
+
 // LOAD ALL EXPENSES
 async function loadExpenses() {
-  const token = localStorage.getItem("token");
-
   const res = await fetch("http://localhost:3000/expenses", {
-    headers: {
-      "Authorization": token
-    }
+    headers: getAuthHeader()
   });
 
   const data = await res.json();
@@ -68,13 +71,11 @@ form.addEventListener("submit", async (e) => {
   const date = document.getElementById("date").value;
   const category = document.getElementById("category").value;
 
-  const token = localStorage.getItem("token");
-
   await fetch("http://localhost:3000/expenses", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": token
+      ...getAuthHeader()
     },
     body: JSON.stringify({ description, amount, date, category })
   });
@@ -85,13 +86,9 @@ form.addEventListener("submit", async (e) => {
 
 // DELETE EXPENSE
 async function deleteExpense(id) {
-  const token = localStorage.getItem("token");
-
   await fetch(`http://localhost:3000/expenses/${id}`, {
     method: "DELETE",
-    headers: {
-      "Authorization": token
-    }
+    headers: getAuthHeader()
   });
 
   loadExpenses();
@@ -122,7 +119,7 @@ updateBtn.addEventListener("click", async () => {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": token
+      ...getAuthHeader()
     },
     body: JSON.stringify({ description, amount, date, category })
   });
@@ -137,22 +134,29 @@ updateBtn.addEventListener("click", async () => {
 
 // ---------------- PREMIUM LOGIC ----------------
 
-// SHOW LEADERBOARD BUTTON ONLY IF PREMIUM USER
-const token2 = localStorage.getItem("token");
-if (token2) {
-  const payload = JSON.parse(atob(token2.split(".")[1]));
+function applyPremiumUI() {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+
+  const payload = JSON.parse(atob(token.split(".")[1]));
 
   if (payload.isPremium) {
-    document.getElementById("showLeaderboard").style.display = "block";
+    buyPremiumBtn.style.display = "none";       // HIDE BUY BUTTON
+    leaderboardBtn.style.display = "block";     // SHOW LEADERBOARD
+  } else {
+    buyPremiumBtn.style.display = "block";
+    leaderboardBtn.style.display = "none";
   }
 }
 
-// WHEN USER CLICKS LEADERBOARD BUTTON
-document.getElementById("showLeaderboard").addEventListener("click", async () => {
-  const token = localStorage.getItem("token");
+// Apply premium UI on load
+applyPremiumUI();
 
+// ---------------- LEADERBOARD ----------------
+
+leaderboardBtn.addEventListener("click", async () => {
   const res = await fetch("http://localhost:3000/premium/leaderboard", {
-    headers: { Authorization: token }
+    headers: getAuthHeader()
   });
 
   const data = await res.json();
@@ -175,7 +179,7 @@ function displayLeaderboard(list) {
     html += `
       <tr>
         <td>${index + 1}</td>
-        <td>${user.name}</td>
+        <td>${user.username}</td>
         <td>₹${user.totalSpent || 0}</td>
       </tr>
     `;
