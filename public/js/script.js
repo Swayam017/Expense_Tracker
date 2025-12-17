@@ -41,7 +41,7 @@ async function loadExpenses() {
   expenseList.innerHTML = "";
   let total = 0;
 
-  data.forEach(exp => {
+  data.expenses.forEach(exp => {
     const tr = document.createElement("tr");
 
     tr.innerHTML = `

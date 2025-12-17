@@ -10,27 +10,8 @@ const { authenticate, isPremium } = require("../middleware/auth");
 router.get("/leaderboard", authenticate, isPremium, async (req, res) => {
   try {
     const leaderboard = await User.findAll({
-      attributes: [
-        "id",
-        "username",  
-
-        // SUM of all expenses by this user
-        [
-          Sequelize.fn("SUM", Sequelize.col("Expenses.amount")),
-          "totalSpent"
-        ]
-      ],
-
-      include: [
-        {
-          model: Expense,
-          attributes: []  
-        }
-      ],
-
-      group: ["User.id", "User.username"],  
-
-      order: [[Sequelize.literal("totalSpent"), "DESC"]]
+      attributes: ["id", "username", "totalSpent"],
+      order: [["totalSpent", "DESC"]]
     });
 
     res.json({ success: true, leaderboard });
@@ -40,5 +21,6 @@ router.get("/leaderboard", authenticate, isPremium, async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
+
 
 module.exports = router;
