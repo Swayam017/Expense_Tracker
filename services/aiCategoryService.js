@@ -7,8 +7,7 @@ const ai = new GoogleGenAI({
 
 async function getCategoryFromAI(description) {
   const prompt = `
-Classify the expense into one of the following categories:
-Food, Travel, Shopping, Petrol, Bills, Entertainment, Health, Salary, Other.
+Give one category for 
 
 Expense: "${description}"
 

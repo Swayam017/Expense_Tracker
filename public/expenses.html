@@ -16,14 +16,30 @@
     }
   </script>
 
+ 
+
+<div id="aiResult" style="margin-top:20px;"></div>
+
+
     <!-- BUY PREMIUM BUTTON (TOP RIGHT) -->
 <button id="buyPremiumBtn" class="premium-btn">Buy Premium ⭐</button>
     <!-- Logout -->
-    <button id="logoutBtn" class="logout">Logout</button>
-    <!-- LEADERBOARD BUTTON -->
-    <button id="showLeaderboard" style="display:none; margin-top: 20px;">
-      View Leaderboard 🏆
-    </button>
+    
+
+<div class="top-actions">
+  <button class="btn btn-analyze" onclick="getInsights()">
+    📊 Analyze My Spending
+  </button>
+
+  <button class="btn btn-leaderboard" id="showLeaderboard">
+    🏆 View Leaderboard
+  </button>
+
+   <button class="btn btn-logout" id="logoutBtn">
+     Logout
+  </button>
+</div>
+
 
   <div class="container">
     <h2>Expense Tracker</h2>

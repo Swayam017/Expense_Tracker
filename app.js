@@ -1,6 +1,9 @@
 const express = require("express");
 const app = express();
 const db = require("./utils/db_connections");
+const aiRoutes = require("./routes/aiRoutes");
+
+app.use("/api/ai", aiRoutes);
 
 app.use(express.json());
 app.use(express.static("public"));
