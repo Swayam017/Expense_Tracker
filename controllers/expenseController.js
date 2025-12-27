@@ -1,6 +1,8 @@
 const Expense = require("../models/Expense");
 const User = require("../models/User");
 const sequelize = require("../utils/db_connections");
+const { getCategoryFromAI } = require("../services/aiCategoryService");
+
 
 /**
  * ============================
@@ -12,7 +14,13 @@ exports.createExpense = async (req, res) => {
 
   try {
     const userId = req.user.id;
-    const { description, amount, date, category } = req.body;
+    const { description, amount, date } = req.body;
+    
+    console.log("DESCRIPTION RECEIVED:", description); // 👈 DEBUG
+
+    const category = await getCategoryFromAI(description);
+
+    console.log("AI RETURNED:", category); // 👈 DEBUG
 
     // 1️⃣ Create expense
     const expense = await Expense.create(

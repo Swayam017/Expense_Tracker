@@ -69,7 +69,7 @@ form.addEventListener("submit", async (e) => {
   const description = document.getElementById("description").value;
   const amount = document.getElementById("amount").value;
   const date = document.getElementById("date").value;
-  const category = document.getElementById("category").value;
+  //const category = document.getElementById("category").value;
 
   await fetch("http://localhost:3000/expenses", {
     method: "POST",
@@ -77,7 +77,7 @@ form.addEventListener("submit", async (e) => {
       "Content-Type": "application/json",
       ...getAuthHeader()
     },
-    body: JSON.stringify({ description, amount, date, category })
+    body: JSON.stringify({ description, amount, date })
   });
 
   form.reset();

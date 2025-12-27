@@ -1,0 +1,10 @@
+[33m2def2f5[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m leaderboard optimised join sum to totalspent stored
+[33m7d0d3ad[m buy button on right
+[33md5ba715[m corrected payment
+[33mf025e9d[m leaderboard
+[33m7f2b799[m payment integration
+[33m7d68c2f[m jwt token
+[33ma2082d2[m frontend login, logout,category
+[33m612006b[m signup page
+[33md685ab9[m Used sequelizebackend
+[33m4600718[m Initial commit - Expense Tracker app
