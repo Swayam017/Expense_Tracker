@@ -13,7 +13,14 @@ const User = sequelize.define("User",{
     type: DataTypes.DECIMAL(10, 2),
     defaultValue: 0.00,
     allowNull: false
-  }
+  },
+  resetToken: {
+  type: DataTypes.STRING,
+},
+resetTokenExpiry: {
+  type: DataTypes.DATE,
+}
+
 
 });
 module.exports=User;

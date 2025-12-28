@@ -95,7 +95,15 @@ exports.updateExpense = async (req, res) => {
   try {
     const userId = req.user.id;
     const expenseId = req.params.id;
-    const { amount } = req.body;
+    const { amount, description } = req.body;
+       // AI category
+    let category = "Other";
+
+      try {
+        category = await getCategoryFromAI(description);
+      } catch (err) {
+        console.error("AI category failed, using default:", err.message);
+      }
 
     const expense = await Expense.findOne({
       where: { id: expenseId, UserId: userId }
@@ -110,7 +118,10 @@ exports.updateExpense = async (req, res) => {
 
     const diff = Number(amount) - Number(expense.amount);
 
-    await expense.update(req.body, { transaction: t });
+    await expense.update(
+  { amount, description, category },
+  { transaction: t }
+);
 
     await User.increment(
       { totalSpent: diff },
