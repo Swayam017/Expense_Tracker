@@ -3,9 +3,11 @@ const User = require("../models/User");
 const sequelize = require("../utils/db_connections");
 const { getCategoryFromAI } = require("../services/aiCategoryService");
 
-
- // CREATE EXPENSE
-
+/**
+ * ================================
+ * CREATE EXPENSE
+ * ================================
+ */
 exports.createExpense = async (req, res) => {
   const t = await sequelize.transaction();
 
@@ -13,10 +15,16 @@ exports.createExpense = async (req, res) => {
     const userId = req.user.id;
     const { description, amount, date } = req.body;
 
-    // AI generate Category
-    const category = await getCategoryFromAI(description);
+    // AI category
+    let category = "Other";
 
-    //  Create expense
+      try {
+        category = await getCategoryFromAI(description);
+      } catch (err) {
+        console.error("AI category failed, using default:", err.message);
+      }
+
+
     const expense = await Expense.create(
       {
         description,
@@ -28,18 +36,18 @@ exports.createExpense = async (req, res) => {
       { transaction: t }
     );
 
-    // Update totalSpent
-    req.user.totalSpent =
-      Number(req.user.totalSpent) + Number(amount);
-
-    await req.user.save({ transaction: t });
+    // Increment totalSpent safely
+    await User.increment(
+      { totalSpent: amount },
+      { where: { id: userId }, transaction: t }
+    );
 
     await t.commit();
 
     res.status(201).json({
       success: true,
-      expense,
-      totalSpent: req.user.totalSpent
+      message: "Expense added successfully",
+      expense
     });
 
   } catch (error) {
@@ -51,15 +59,15 @@ exports.createExpense = async (req, res) => {
   }
 };
 
-
- //GET USER EXPENSES
- 
+/**
+ * ================================
+ * GET ALL EXPENSES
+ * ================================
+ */
 exports.getExpenses = async (req, res) => {
   try {
-    const userId = req.user.id;
-
     const expenses = await Expense.findAll({
-      where: { UserId: userId },
+      where: { UserId: req.user.id },
       order: [["date", "DESC"]]
     });
 
@@ -76,54 +84,11 @@ exports.getExpenses = async (req, res) => {
   }
 };
 
-
- // DELETE EXPENSE
-
-exports.deleteExpense = async (req, res) => {
-  const t = await sequelize.transaction();
-
-  try {
-    const userId = req.user.id;
-    const expenseId = req.params.id;
-
-    const expense = await Expense.findOne({
-      where: { id: expenseId, UserId: userId }
-    });
-
-    if (!expense) {
-      return res.status(403).json({
-        success: false,
-        message: "Unauthorized delete"
-      });
-    }
-
-    //  Reduce totalSpent
-    req.user.totalSpent =
-      Number(req.user.totalSpent) - Number(expense.amount);
-
-    await req.user.save({ transaction: t });
-    await expense.destroy({ transaction: t });
-
-    await t.commit();
-
-    res.json({
-      success: true,
-      message: "Expense deleted",
-      totalSpent: req.user.totalSpent
-    });
-
-  } catch (error) {
-    await t.rollback();
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-};
-
-
- // UPDATE EXPENSE
-
+/**
+ * ================================
+ * UPDATE EXPENSE
+ * ================================
+ */
 exports.updateExpense = async (req, res) => {
   const t = await sequelize.transaction();
 
@@ -137,27 +102,72 @@ exports.updateExpense = async (req, res) => {
     });
 
     if (!expense) {
-      return res.status(403).json({
+      return res.status(404).json({
         success: false,
-        message: "Unauthorized update"
+        message: "Expense not found"
       });
     }
 
-    //  Adjust totalSpent (new - old)
-    const difference =
-      Number(amount) - Number(expense.amount);
-
-    req.user.totalSpent += difference;
+    const diff = Number(amount) - Number(expense.amount);
 
     await expense.update(req.body, { transaction: t });
-    await req.user.save({ transaction: t });
+
+    await User.increment(
+      { totalSpent: diff },
+      { where: { id: userId }, transaction: t }
+    );
 
     await t.commit();
 
     res.json({
       success: true,
-      message: "Expense updated",
-      totalSpent: req.user.totalSpent
+      message: "Expense updated successfully"
+    });
+
+  } catch (error) {
+    await t.rollback();
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
+
+/**
+ * ================================
+ * DELETE EXPENSE
+ * ================================
+ */
+exports.deleteExpense = async (req, res) => {
+  const t = await sequelize.transaction();
+
+  try {
+    const userId = req.user.id;
+    const expenseId = req.params.id;
+
+    const expense = await Expense.findOne({
+      where: { id: expenseId, UserId: userId }
+    });
+
+    if (!expense) {
+      return res.status(404).json({
+        success: false,
+        message: "Expense not found"
+      });
+    }
+
+    await User.decrement(
+      { totalSpent: expense.amount },
+      { where: { id: userId }, transaction: t }
+    );
+
+    await expense.destroy({ transaction: t });
+
+    await t.commit();
+
+    res.json({
+      success: true,
+      message: "Expense deleted successfully"
     });
 
   } catch (error) {
