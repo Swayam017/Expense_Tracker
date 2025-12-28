@@ -34,7 +34,7 @@ signupBtn.addEventListener('click', async () => {
 
     setTimeout(() => {
       window.location.href = "/login.html";
-    }, 1500);
+    }, 100);
 
   } catch (err) {
     errorMsg.textContent = "Server error, please try again later.";

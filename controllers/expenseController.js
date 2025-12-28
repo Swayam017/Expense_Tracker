@@ -4,25 +4,19 @@ const sequelize = require("../utils/db_connections");
 const { getCategoryFromAI } = require("../services/aiCategoryService");
 
 
-/**
- * ============================
- * CREATE EXPENSE
- * ============================
- */
+ // CREATE EXPENSE
+
 exports.createExpense = async (req, res) => {
   const t = await sequelize.transaction();
 
   try {
     const userId = req.user.id;
     const { description, amount, date } = req.body;
-    
-    console.log("DESCRIPTION RECEIVED:", description); // 👈 DEBUG
 
+    // AI generate Category
     const category = await getCategoryFromAI(description);
 
-    console.log("AI RETURNED:", category); // 👈 DEBUG
-
-    // 1️⃣ Create expense
+    //  Create expense
     const expense = await Expense.create(
       {
         description,
@@ -34,7 +28,7 @@ exports.createExpense = async (req, res) => {
       { transaction: t }
     );
 
-    // 2️⃣ Update totalSpent
+    // Update totalSpent
     req.user.totalSpent =
       Number(req.user.totalSpent) + Number(amount);
 
@@ -57,11 +51,9 @@ exports.createExpense = async (req, res) => {
   }
 };
 
-/**
- * ============================
- * GET USER EXPENSES
- * ============================
- */
+
+ //GET USER EXPENSES
+ 
 exports.getExpenses = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -84,11 +76,9 @@ exports.getExpenses = async (req, res) => {
   }
 };
 
-/**
- * ============================
- * DELETE EXPENSE
- * ============================
- */
+
+ // DELETE EXPENSE
+
 exports.deleteExpense = async (req, res) => {
   const t = await sequelize.transaction();
 
@@ -107,7 +97,7 @@ exports.deleteExpense = async (req, res) => {
       });
     }
 
-    // 🔥 Reduce totalSpent
+    //  Reduce totalSpent
     req.user.totalSpent =
       Number(req.user.totalSpent) - Number(expense.amount);
 
@@ -131,11 +121,9 @@ exports.deleteExpense = async (req, res) => {
   }
 };
 
-/**
- * ============================
- * UPDATE EXPENSE
- * ============================
- */
+
+ // UPDATE EXPENSE
+
 exports.updateExpense = async (req, res) => {
   const t = await sequelize.transaction();
 
@@ -155,7 +143,7 @@ exports.updateExpense = async (req, res) => {
       });
     }
 
-    // 🔥 Adjust totalSpent (new - old)
+    //  Adjust totalSpent (new - old)
     const difference =
       Number(amount) - Number(expense.amount);
 
