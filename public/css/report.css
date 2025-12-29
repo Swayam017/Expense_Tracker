@@ -1,0 +1,121 @@
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #f4f6f9;
+  margin: 0;
+  padding: 20px;
+}
+
+/* Main Container */
+.report-container {
+  max-width: 900px;
+  margin: auto;
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Headings */
+.title {
+  text-align: center;
+  font-size: 28px;
+  color: #2c3e50;
+  margin-bottom: 5px;
+}
+
+.subtitle {
+  text-align: center;
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 25px;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 25px;
+  background: #fff;
+}
+
+th {
+  background: linear-gradient(to right, #4e8cff, #6fa8ff);
+  color: #fff;
+  padding: 10px;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+td {
+  padding: 10px;
+  border-bottom: 1px solid #e0e0e0;
+  text-align: center;
+  font-size: 14px;
+}
+
+tr:nth-child(even) {
+  background: #f9f9f9;
+}
+
+tr:hover {
+  background-color: #eef4ff;
+}
+
+/* Summary Section */
+.section-title {
+  font-size: 18px;
+  margin-top: 30px;
+  color: #34495e;
+  border-left: 5px solid #4e8cff;
+  padding-left: 10px;
+}
+
+/* Totals */
+tfoot td {
+  font-weight: bold;
+  background: #eaf1ff;
+  color: #2c3e50;
+}
+
+/* Mobile Friendly */
+@media (max-width: 600px) {
+  .report-container {
+    padding: 15px;
+  }
+
+  table, th, td {
+    font-size: 13px;
+  }
+}
+.week-title {
+  font-weight: bold;
+  font-size: 18px;
+  margin-top: 25px;
+}
+
+.week-total {
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #2c3e50;
+}
+.notes-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.notes-table th {
+  background: #4e8cff;
+  color: #fff;
+  padding: 10px;
+  text-align: center;
+}
+
+.notes-table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+
+.notes-table tr:nth-child(even) {
+  background: #f5f7fb;
+}

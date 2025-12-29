@@ -215,3 +215,6 @@ async function getInsights() {
       "❌ Failed to load insights";
   }
 }
+function openReport() {
+  window.location.href = "report.html";
+}

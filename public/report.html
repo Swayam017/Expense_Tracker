@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Expense Report</title>
+<link rel="stylesheet" href="/css/report.css">
+</head>
+<body>
+
+<div class="container">
+
+<h2 class="title">Day to Day Expenses</h2>
+<p class="subtitle" id="monthTitle"></p>
+
+<table class="expense-table">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Description</th>
+      <th>Category</th>
+      <th>Income</th>
+      <th>Expense</th>
+    </tr>
+  </thead>
+  <tbody id="expenseBody"></tbody>
+</table>
+
+<h3 class="section-title">Yearly Summary</h3>
+<table class="summary-table">
+  <thead>
+    <tr>
+      <th>Month</th>
+      <th>Total Income</th>
+      <th>Total Expense</th>
+      <th>Savings</th>
+    </tr>
+  </thead>
+  <tbody id="yearlySummary"></tbody>
+</table>
+<h3 class="section-title">Notes</h3>
+
+<table class="notes-table">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody id="notesBody"></tbody>
+</table>
+
+</div>
+
+<script src="/js/report.js"></script>
+</body>
+</html>
