@@ -1,77 +1,56 @@
 const express = require("express");
-const crypto = require("crypto");
-const bcrypt = require("bcrypt");
 const router = express.Router();
+const bcrypt = require("bcrypt");
 const User = require("../models/User");
-const nodemailer = require("nodemailer");
+const ForgotPassword = require("../models/ForgotPasswordRequest");
 
-// Gmail transporter
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-});
-
-// ------------------ FORGOT PASSWORD ------------------
-router.get("/reset-password", (req, res) => {
-  res.sendFile("reset-password.html", {
-    root: "public"
-  });
-});
-
+// ------------------ CREATE RESET LINK ------------------
 router.post("/forgot-password", async (req, res) => {
   const { email } = req.body;
+
+  if (!email) return res.status(400).json({ message: "Email required" });
 
   const user = await User.findOne({ where: { email } });
   if (!user) return res.status(404).json({ message: "User not found" });
 
-  const token = crypto.randomBytes(32).toString("hex");
-  user.resetToken = token;
-  user.resetTokenExpiry = Date.now() + 15 * 60 * 1000; // 15 minutes
-  await user.save();
+  const request = await ForgotPassword.create({ UserId: user.id });
 
- const resetLink = `http://localhost:3000/password/reset-password?token=${token}`;
+  const resetLink = `http://localhost:3000/password/reset/${request.id}`;
 
-  await transporter.sendMail({
-    from: `"Expense Tracker" <${process.env.EMAIL_USER}>`,
-    to: email,
-    subject: "Reset Your Password",
-    html: `
-      <h3>Password Reset</h3>
-      <p>Click below to reset your password:</p>
-      <a href="${resetLink}">Reset Password</a>
-      <p>This link expires in 15 minutes.</p>
-    `
-  });
+  console.log("RESET LINK:", resetLink);
 
-  res.json({ message: "Reset email sent" });
+  res.json({ message: "Reset link generated", resetLink });
 });
 
-// ------------------ RESET PASSWORD ------------------
-router.post("/reset-password", async (req, res) => {
-  const { token, password } = req.body;
-
-  const user = await User.findOne({
-    where: {
-      resetToken: token,
-      resetTokenExpiry: { [require("sequelize").Op.gt]: Date.now() }
-    }
+// ------------------ LOAD RESET PAGE ------------------
+router.get("/reset/:id", async (req, res) => {
+  const record = await ForgotPassword.findOne({
+    where: { id: req.params.id, isActive: true }
   });
 
-  if (!user) {
-    return res.status(400).json({ message: "Invalid or expired token" });
-  }
+  if (!record) return res.status(400).send("Invalid or expired link");
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+  res.sendFile("reset-password.html", { root: "public" });
+});
 
-  user.password = hashedPassword;
-  user.resetToken = null;
-  user.resetTokenExpiry = null;
+// ------------------ UPDATE PASSWORD ------------------
+router.post("/reset/:id", async (req, res) => {
+  const { password } = req.body;
+
+  const record = await ForgotPassword.findOne({
+    where: { id: req.params.id, isActive: true }
+  });
+
+  if (!record) return res.status(400).json({ message: "Invalid or expired link" });
+
+  const user = await User.findByPk(record.UserId);
+  user.password = await bcrypt.hash(password, 10);
   await user.save();
 
-  res.json({ message: "Password reset successful" });
+  record.isActive = false;
+  await record.save();
+
+  res.json({ message: "Password updated successfully" });
 });
 
 module.exports = router;
