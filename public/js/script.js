@@ -25,42 +25,6 @@ function getAuthHeader() {
   return { "Authorization": "Bearer " + localStorage.getItem("token") };
 }
 
-// LOAD ALL EXPENSES
-async function loadExpenses() {
-  const res = await fetch("http://localhost:3000/expenses", {
-    headers: getAuthHeader()
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    console.error("Error:", data.error);
-    return;
-  }
-
-  expenseList.innerHTML = "";
-  let total = 0;
-
-  data.expenses.forEach(exp => {
-    const tr = document.createElement("tr");
-
-    tr.innerHTML = `
-      <td>${exp.description}</td>
-      <td>₹${exp.amount}</td>
-      <td>${exp.date}</td>
-      <td>${exp.category}</td>
-      <td>
-        <button onclick="editExpense(${exp.id}, '${exp.description}', '${exp.amount}', '${exp.date}', '${exp.category}')">Edit</button>
-        <button onclick="deleteExpense(${exp.id})">Delete</button>
-      </td>
-    `;
-
-    expenseList.appendChild(tr);
-    total += Number(exp.amount);
-  });
-
-  totalElement.textContent = `Total: ₹${total}`;
-}
 
 // ADD EXPENSE
 form.addEventListener("submit", async (e) => {
@@ -153,18 +117,29 @@ function applyPremiumUI() {
 applyPremiumUI();
 
 
+// LOAD EXPENSES WITH PAGINATION
+let pageSize = parseInt(localStorage.getItem("pageSize")) || 10;
 let currentPage = 1;
-const limit = 10;
+const limit = 3;
+
+document.getElementById("pageSizeSelect").value = pageSize;
+
+document.getElementById("pageSizeSelect").addEventListener("change", (e) => {
+  pageSize = parseInt(e.target.value);
+  localStorage.setItem("pageSize", pageSize);
+  currentPage = 1; // reset page
+  loadExpenses(currentPage);
+});
+
 
 // LOAD EXPENSES WITH PAGINATION
 async function loadExpenses(page = 1) {
   const res = await fetch(
-    `http://localhost:3000/expenses?page=${page}&limit=${limit}`,
+    `http://localhost:3000/expenses?page=${page}&limit=${pageSize}`,
     { headers: getAuthHeader() }
   );
 
   const data = await res.json();
-
   if (!data.success) return;
 
   expenseList.innerHTML = "";
@@ -187,25 +162,40 @@ async function loadExpenses(page = 1) {
   });
 
   document.getElementById("total").innerText = `Total: ₹${total}`;
-  document.getElementById("pageInfo").innerText =
-    `Page ${data.currentPage} of ${data.totalPages}`;
 
-  currentPage = data.currentPage;
-
-  // Disable buttons properly
-  document.getElementById("prevPage").disabled = currentPage === 1;
-  document.getElementById("nextPage").disabled = currentPage === data.totalPages;
+  renderPagination(data.currentPage, data.totalPages);
 }
 
-// Pagination buttons
-document.getElementById("prevPage").onclick = () => {
-  if (currentPage > 1) loadExpenses(currentPage - 1);
-};
+// RENDER PAGE BUTTONS
+function renderPagination(current, totalPages) {
+  const pagination = document.getElementById("pagination");
+  pagination.innerHTML = "";
 
-document.getElementById("nextPage").onclick = () => {
-  loadExpenses(currentPage + 1);
-};
+  let start = Math.max(1, current - 1);
+  let end = Math.min(totalPages, current + 1);
+
+  // Ensure always 3 buttons if possible
+  if (current === 1) end = Math.min(3, totalPages);
+  if (current === totalPages) start = Math.max(1, totalPages - 2);
+
+  for (let i = start; i <= end; i++) {
+    const btn = document.createElement("button");
+    btn.innerText = i;
+    btn.className = "page-btn";
+
+    if (i === current) btn.classList.add("active");
+
+    btn.onclick = () => loadExpenses(i);
+    pagination.appendChild(btn);
+  }
+}
 
 
-// LOAD EXPENSES ON PAGE LOAD
-loadExpenses(1);
+document.addEventListener("DOMContentLoaded", () => {
+  loadNotes();
+  loadExpenses(1);
+});
+
+
+
+

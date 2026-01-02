@@ -98,13 +98,24 @@
     <div class="total" id="total">Total: ₹0</div>
 
   </div>
-<div class="pagination">
-  <button id="prevPage">⬅ Prev</button>
-  <span id="pageInfo"></span>
-  <button id="nextPage">Next ➡</button>
+
+<div class="pagination" id="pagination"></div>
+<div class="page-size-control">
+  <label>Show</label>
+  <select id="pageSizeSelect">
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="5">5</option>
+    <option value="10">10</option>
+    <option value="20">20</option>
+    
+  </select>
+  <span>entries</span>
 </div>
 
+
   <!-- MAIN JS -->
+   <script src="/js/note.js"></script>
   <script src="/js/script.js"></script>
 
   <!-- BUY PREMIUM BUTTON HANDLER -->
