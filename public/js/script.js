@@ -46,6 +46,10 @@ form.addEventListener("submit", async (e) => {
 
   form.reset();
   loadExpenses();
+  // 🔁 Re-check after AI finishes (2–3 seconds)
+setTimeout(() => {
+  loadExpenses(currentPage);
+}, 2000);
 });
 
 // DELETE EXPENSE

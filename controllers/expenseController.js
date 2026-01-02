@@ -15,22 +15,12 @@ exports.createExpense = async (req, res) => {
     const userId = req.user.id;
     const { description, amount, date } = req.body;
 
-    // AI category
-    let category = "Other";
-
-      try {
-        category = await getCategoryFromAI(description);
-      } catch (err) {
-        console.error("AI category failed, using default:", err.message);
-      }
-
-
     const expense = await Expense.create(
       {
         description,
         amount,
         date,
-        category,
+        category: "Other",
         UserId: userId
       },
       { transaction: t }
@@ -49,6 +39,16 @@ exports.createExpense = async (req, res) => {
       message: "Expense added successfully",
       expense
     });
+
+    // 3️⃣ Run AI classification in background (non-blocking)
+    getCategoryFromAI(description)
+      .then(category => {
+        return Expense.update(
+          { category },
+          { where: { id: expense.id } }
+        );
+      })
+      .catch(err => console.error("AI category failed:", err));
 
   } catch (error) {
     await t.rollback();
