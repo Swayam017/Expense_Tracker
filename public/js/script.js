@@ -54,8 +54,21 @@ async function deleteExpense(id) {
     method: "DELETE",
     headers: getAuthHeader()
   });
+     // Re-fetch with same page first
+  const res = await fetch(
+    `/expenses?page=${currentPage}&limit=${pageSize}`,
+    { headers: getAuthHeader() }
+  );
 
-  loadExpenses();
+  const data = await res.json();
+
+  // If current page is now empty, go back one page
+  if (data.expenses.length === 0 && currentPage > 1) {
+    currentPage--;
+  }
+
+  // Reload correct page
+  loadExpenses(currentPage);
 }
 
 // EDIT EXPENSE
@@ -120,7 +133,6 @@ applyPremiumUI();
 // LOAD EXPENSES WITH PAGINATION
 let pageSize = parseInt(localStorage.getItem("pageSize")) || 10;
 let currentPage = 1;
-const limit = 3;
 
 document.getElementById("pageSizeSelect").value = pageSize;
 
@@ -142,6 +154,10 @@ async function loadExpenses(page = 1) {
   const data = await res.json();
   if (!data.success) return;
 
+    if (currentPage > data.totalPages && data.totalPages > 0) {
+  currentPage = data.totalPages;
+}
+currentPage = page;
   expenseList.innerHTML = "";
   let total = 0;
 
@@ -162,6 +178,7 @@ async function loadExpenses(page = 1) {
   });
 
   document.getElementById("total").innerText = `Total: ₹${total}`;
+
 
   renderPagination(data.currentPage, data.totalPages);
 }
@@ -193,7 +210,7 @@ function renderPagination(current, totalPages) {
 
 document.addEventListener("DOMContentLoaded", () => {
   loadNotes();
-  loadExpenses(1);
+  loadExpenses(currentPage);
 });
 
 
