@@ -119,3 +119,33 @@ tfoot td {
 .notes-table tr:nth-child(even) {
   background: #f5f7fb;
 }
+.download-btn {
+  background: linear-gradient(135deg, #4CAF50, #2e7d32);
+  color: white;
+  border: none;
+  padding: 12px 22px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.download-btn:hover {
+  background: linear-gradient(135deg, #43a047, #1b5e20);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+}
+
+.download-btn:active {
+  transform: scale(0.97);
+}
+
+.download-btn::before {
+  content: "⬇";
+  font-size: 18px;
+}

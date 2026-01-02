@@ -1,19 +1,125 @@
-const expenses = [
-  { date: "2025-03-01", desc: "Milk", category: "Milk", income: 0, expense: 60 },
-  { date: "2025-03-04", desc: "Salary", category: "Salary", income: 40000, expense: 0 },
-  { date: "2025-03-10", desc: "Groceries", category: "Food", income: 0, expense: 500 },
-  { date: "2025-03-20", desc: "Electricity", category: "Bills", income: 0, expense: 800 }
-];
-const notes = [
-  { date: "2025-03-01", note: "Paid electricity bill" },
-  { date: "2025-03-10", note: "Bought groceries for week" },
-  { date: "2025-03-20", note: "Unexpected medical expense" }
-];
-function loadNotes() {
+async function loadReport() {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch("/api/report", {
+    headers: { Authorization: "Bearer " + token }
+  });
+
+  const data = await res.json();
+  const { expenses, incomes } = data;
+
+  const table = document.getElementById("expenseBody");
+  const summary = document.getElementById("yearlySummary");
+
+  table.innerHTML = "";
+  summary.innerHTML = "";
+
+  let yearIncome = 0;
+  let yearExpense = 0;
+
+  // Merge income + expense
+  const records = [];
+
+  expenses.forEach(e => {
+    records.push({
+      date: new Date(e.date),
+      desc: e.description,
+      category: e.category,
+      income: 0,
+      expense: e.amount
+    });
+    yearExpense += Number(e.amount);
+  });
+
+  incomes.forEach(i => {
+    records.push({
+      date: new Date(i.date),
+      desc: i.source || "Income",
+      category: "Income",
+      income: i.amount,
+      expense: 0
+    });
+    yearIncome += Number(i.amount);
+  });
+
+  // Sort by date
+  records.sort((a, b) => a.date - b.date);
+
+  // Group by Month & Week
+  const grouped = {};
+
+  records.forEach(item => {
+    const year = item.date.getFullYear();
+    const month = item.date.getMonth() + 1;
+    const week = Math.ceil(item.date.getDate() / 7);
+    const key = `${year}-${month}`;
+
+    if (!grouped[key]) grouped[key] = {};
+    if (!grouped[key][week]) grouped[key][week] = [];
+
+    grouped[key][week].push(item);
+  });
+
+  // Render data
+  Object.keys(grouped).forEach(monthKey => {
+    let monthlyIncome = 0;
+    let monthlyExpense = 0;
+
+    Object.keys(grouped[monthKey]).forEach(week => {
+      table.innerHTML += `
+        <tr class="week-header">
+          <td colspan="5"><b>${monthKey.replace("-", " Month ")} - Week ${week}</b></td>
+        </tr>
+      `;
+
+      grouped[monthKey][week].forEach(row => {
+        table.innerHTML += `
+          <tr>
+            <td>${row.date.toISOString().split("T")[0]}</td>
+            <td>${row.desc}</td>
+            <td>${row.category}</td>
+            <td>${row.income ? "Rs. " + row.income : ""}</td>
+            <td>${row.expense ? "Rs. " + row.expense : ""}</td>
+          </tr>
+        `;
+        monthlyIncome += row.income;
+        monthlyExpense += row.expense;
+      });
+    });
+
+    // 🔹 MONTH TOTAL ROW
+    table.innerHTML += `
+      <tr style="background:#e8f0ff;font-weight:bold;">
+        <td colspan="3">Total for ${monthKey}</td>
+        <td>Rs. ${monthlyIncome}</td>
+        <td>Rs. ${monthlyExpense}</td>
+      </tr>
+    `;
+  });
+
+  // YEAR SUMMARY
+  summary.innerHTML = `
+    <tr>
+      <td>${new Date().getFullYear()}</td>
+      <td>Rs. ${yearIncome}</td>
+      <td>Rs. ${yearExpense}</td>
+      <td>Rs. ${yearIncome - yearExpense}</td>
+    </tr>
+  `;
+}
+async function loadNotes() {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch("/api/notes", {
+    headers: { Authorization: "Bearer " + token }
+  });
+
+  const data = await res.json();
   const notesBody = document.getElementById("notesBody");
+
   notesBody.innerHTML = "";
 
-  notes.forEach(note => {
+  data.notes.forEach(note => {
     notesBody.innerHTML += `
       <tr>
         <td>${note.date}</td>
@@ -23,77 +129,91 @@ function loadNotes() {
   });
 }
 
-loadNotes();
 
-function getWeekOfMonth(date) {
-  const first = new Date(date.getFullYear(), date.getMonth(), 1);
-  return Math.ceil((date.getDate() + first.getDay()) / 7);
-}
+window.onload = () => {
+  loadReport();
+  loadNotes();
+};
 
-function loadReport() {
-  const reportBody = document.getElementById("expenseBody");
-  const yearSummary = document.getElementById("yearlySummary");
 
-  reportBody.innerHTML = "";
-  yearSummary.innerHTML = "";
+function downloadReport() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
 
-  let yearTotals = { income: 0, expense: 0 };
-  let grouped = {};
+  doc.setFont("helvetica");
+  doc.setFontSize(16);
+  doc.text("Expense Report", 14, 15);
 
-  expenses.forEach(item => {
-    const d = new Date(item.date);
-    const month = d.getMonth();
-    const week = getWeekOfMonth(d);
+  let y = 25;
 
-    if (!grouped[month]) grouped[month] = {};
-    if (!grouped[month][week]) grouped[month][week] = [];
+  // ---------------- NOTES TABLE ----------------
+  doc.setFontSize(12);
+  doc.text("Notes", 14, y);
+  y += 5;
 
-    grouped[month][week].push(item);
+  const noteRows = [];
+  document.querySelectorAll("#notesBody tr").forEach(row => {
+    const cols = row.querySelectorAll("td");
+    if (cols.length >= 2) {
+      noteRows.push([cols[0].innerText, cols[1].innerText]);
+    }
   });
 
-  Object.keys(grouped).forEach(month => {
-    Object.keys(grouped[month]).forEach(week => {
-      let weekTotal = 0;
-
-      reportBody.innerHTML += `
-        <tr><td colspan="5" style="font-weight:bold;">Week ${week}</td></tr>
-      `;
-
-      grouped[month][week].forEach(item => {
-        reportBody.innerHTML += `
-          <tr>
-            <td>${item.date}</td>
-            <td>${item.desc}</td>
-            <td>${item.category}</td>
-            <td>${item.income ? item.income : ""}</td>
-            <td>${item.expense ? item.expense : ""}</td>
-          </tr>
-        `;
-
-        yearTotals.income += item.income;
-        yearTotals.expense += item.expense;
-        weekTotal += item.expense;
-      });
-
-            reportBody.innerHTML += `
-            <tr style="font-weight:bold;background:#f4f6ff;">
-                <td colspan="5" style="text-align:right; padding-right:50px;">
-                Weekly Total: ₹${weekTotal}
-                </td>
-            </tr>
-            `;
-
-    });
+  doc.autoTable({
+    startY: y,
+    head: [["Date", "Note"]],
+    body: noteRows,
   });
 
-  // Yearly Summary
-  yearSummary.innerHTML = `
-    <tr>
-      <td>2025</td>
-      <td>₹${yearTotals.income}</td>
-      <td>₹${yearTotals.expense}</td>
-      <td>₹${yearTotals.income - yearTotals.expense}</td>
-    </tr>`;
-}
+  y = doc.lastAutoTable.finalY + 10;
 
-window.onload = loadReport;
+  // ---------------- EXPENSE TABLE ----------------
+  doc.text("Expense Report", 14, y);
+  y += 5;
+
+  const expenseRows = [];
+  document.querySelectorAll("#expenseBody tr").forEach(row => {
+    const cols = row.querySelectorAll("td");
+    if (cols.length >= 5) {
+      expenseRows.push([
+        cols[0].innerText,
+        cols[1].innerText,
+        cols[2].innerText,
+        cols[3].innerText,
+        cols[4].innerText
+      ]);
+    }
+  });
+
+  doc.autoTable({
+    startY: y,
+    head: [["Date", "Description", "Category", "Income", "Expense"]],
+    body: expenseRows,
+  });
+    y = doc.lastAutoTable.finalY + 10;
+
+// ------------------ YEARLY SUMMARY ------------------
+  doc.text("Yearly Summary", 14, y);
+  y += 5;
+
+  const summaryRows = [];
+  document.querySelectorAll("#yearlySummary tr").forEach(row => {
+    const cols = row.querySelectorAll("td");
+    if (cols.length === 4) {
+      summaryRows.push([
+        cols[0].innerText,
+        cols[1].innerText,
+        cols[2].innerText,
+        cols[3].innerText
+      ]);
+    }
+  });
+
+  doc.autoTable({
+    startY: y,
+    head: [["Month", "Income", "Expense", "Savings"]],
+    body: summaryRows
+  });
+
+  doc.save("Expense_Report.pdf");
+}

@@ -68,19 +68,19 @@ th, td {
 }
 
 .edit-btn {
-  background-color: orange;
+  background-color:  #007bff;
 }
 
 .edit-btn:hover {
-  background-color: darkorange;
+  background-color: rgb(13, 0, 255);
 }
 
 .delete-btn {
-  background-color: crimson;
+  background-color:  #007bff;
 }
 
 .delete-btn:hover {
-  background-color: darkred;
+  background-color: rgb(13, 0, 255);
 }
 
 .total {
@@ -128,70 +128,93 @@ th, td {
   transition: all 0.3s ease;
 }
 
-/* Analyze Button */
-.btn-analyze {
-  background: linear-gradient(135deg, #4facfe, #00f2fe);
-  color: white;
-}
 
-.btn-analyze:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(0, 140, 255, 0.5);
-}
 
-/* Leaderboard Button */
-.btn-leaderboard {
-  background: linear-gradient(135deg, #f7971e, #ffd200);
-  color: #000;
-}
 
-.btn-leaderboard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(255, 193, 7, 0.6);
-}
-
-/* Top right container */
-.top-right-actions {
-  position: absolute;
-  top: 20px;
-  right: 20px;
+/* TOP BAR */
+.top-bar {
   display: flex;
-  gap: 2px;
-  z-index: 1000;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
-/* Logout Button */
-.btn-logout {
-  width:150px;
-  height: 45px;
-  background: linear-gradient(135deg, #ff4e50, #f44336);
-  color: white;
+/* LEFT SIDE BUTTONS */
+.left-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
-.btn-logout:hover {
-  background: linear-gradient(135deg, #e53935, #d32f2f);
+/* COMMON BUTTON STYLE */
+.nav-btn {
+  padding: 10px 16px;
+  border-radius: 6px;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+background: linear-gradient(135deg,  #0004ff, #c300ff);
+  transition: 0.2s;
 }
 
-/* Leaderboard Button */
-.btn-leaderboard {
-  background: linear-gradient(135deg, #f7971e, #ffd200);
+.nav-btn:hover {
+     transform: translateY(-2px);
+  background: linear-gradient(135deg, #c300ff, #0004ff);
+}
+
+/* PREMIUM BUTTONS */
+.premium {
+  background: linear-gradient(135deg, #facc15, #f59e0b);
   color: #000;
+  font-size: 15px;
+  font-weight: 600;
 }
 
-.btn-leaderboard:hover {
+.premium:hover {
+  background: linear-gradient(135deg, #fde047, #facc15);
+   transform: translateY(-2px);
+}
+
+/* RIGHT SIDE */
+.right-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* BUY PREMIUM */
+.btn-premium {
+  background: linear-gradient(135deg, #ff9800, #ffc107);
+  border: none;
+  color: black;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.btn-premium:hover{
+  transform: translateY(-2px);
   background: linear-gradient(135deg, #ffcc00, #ffb300);
 }
-.report-btn {
-  background: #4a6cf7;
+/* LOGOUT */
+.btn-logout {
+  background: linear-gradient(135deg,  #0004ff, #c300ff);
   color: white;
+  font-size: 15px;
+  font-weight: 600;
   border: none;
   padding: 10px 16px;
   border-radius: 6px;
   cursor: pointer;
-  float: right;
-  margin-bottom: 10px;
+}
+.btn-logout:hover{
+   transform: translateY(-2px);
+  background: linear-gradient(135deg, #c300ff, #0004ff);
+}
+.notes-section {
+  margin-bottom: 40px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e0e0e0;
 }
 
-.report-btn:hover {
-  background: #354de5;
-}

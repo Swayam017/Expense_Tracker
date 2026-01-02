@@ -113,7 +113,6 @@ updateBtn.addEventListener("click", async () => {
   const date = document.getElementById("date").value;
   const category = document.getElementById("category").value;
 
-  const token = localStorage.getItem("token");
 
   await fetch(`http://localhost:3000/expenses/${editId}`, {
     method: "PUT",
@@ -139,82 +138,74 @@ function applyPremiumUI() {
   if (!token) return;
 
   const payload = JSON.parse(atob(token.split(".")[1]));
+  const premiumSection = document.querySelector(".premium-section");
 
   if (payload.isPremium) {
     buyPremiumBtn.style.display = "none";       // HIDE BUY BUTTON
-    leaderboardBtn.style.display = "block";     // SHOW LEADERBOARD
+    premiumSection.style.display = "block";     // SHOW LEADERBOARD
   } else {
     buyPremiumBtn.style.display = "block";
-    leaderboardBtn.style.display = "none";
+    premiumSection.style.display = "none";
   }
 }
 
 // Apply premium UI on load
 applyPremiumUI();
 
-// ---------------- LEADERBOARD ----------------
 
-leaderboardBtn.addEventListener("click", async () => {
-  const res = await fetch("http://localhost:3000/premium/leaderboard", {
-    headers: getAuthHeader()
-  });
+let currentPage = 1;
+const limit = 10;
+
+// LOAD EXPENSES WITH PAGINATION
+async function loadExpenses(page = 1) {
+  const res = await fetch(
+    `http://localhost:3000/expenses?page=${page}&limit=${limit}`,
+    { headers: getAuthHeader() }
+  );
 
   const data = await res.json();
-  displayLeaderboard(data.leaderboard);
-});
 
-// DISPLAY LEADERBOARD TABLE
-function displayLeaderboard(list) {
-  let html = `
-    <h2>🏆 Leaderboard</h2>
-    <table border="1" cellpadding="8" style="width: 100%; margin-top: 20px;">
-      <tr>
-        <th>Rank</th>
-        <th>User</th>
-        <th>Total Spent</th>
-      </tr>
-  `;
+  if (!data.success) return;
 
-  list.forEach((user, index) => {
-    html += `
-      <tr>
-        <td>${index + 1}</td>
-        <td>${user.username}</td>
-        <td>₹${user.totalSpent || 0}</td>
-      </tr>
+  expenseList.innerHTML = "";
+  let total = 0;
+
+  data.expenses.forEach(exp => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${exp.description}</td>
+      <td>₹${exp.amount}</td>
+      <td>${exp.date}</td>
+      <td>${exp.category}</td>
+      <td>
+        <button onclick="editExpense(${exp.id}, '${exp.description}', '${exp.amount}', '${exp.date}', '${exp.category}')">Edit</button>
+        <button onclick="deleteExpense(${exp.id})">Delete</button>
+      </td>
     `;
+    expenseList.appendChild(tr);
+    total += Number(exp.amount);
   });
 
-  html += "</table>";
-  document.getElementById("leaderboard").innerHTML = html;
+  document.getElementById("total").innerText = `Total: ₹${total}`;
+  document.getElementById("pageInfo").innerText =
+    `Page ${data.currentPage} of ${data.totalPages}`;
+
+  currentPage = data.currentPage;
+
+  // Disable buttons properly
+  document.getElementById("prevPage").disabled = currentPage === 1;
+  document.getElementById("nextPage").disabled = currentPage === data.totalPages;
 }
+
+// Pagination buttons
+document.getElementById("prevPage").onclick = () => {
+  if (currentPage > 1) loadExpenses(currentPage - 1);
+};
+
+document.getElementById("nextPage").onclick = () => {
+  loadExpenses(currentPage + 1);
+};
+
 
 // LOAD EXPENSES ON PAGE LOAD
-loadExpenses();
-
-
-// ================= AI INSIGHTS =================
-async function getInsights() {
-  document.getElementById("aiResult").innerHTML = "Analyzing... ⏳";
-
-  try {
-    const res = await fetch("http://localhost:3000/api/ai/insights", {
-      headers: {
-        "Authorization": "Bearer " + localStorage.getItem("token")
-      }
-    });
-
-    const data = await res.json();
-
-    document.getElementById("aiResult").innerHTML = `
-      <h3>📊 Spending Insights</h3>
-      <p>${data.insight.replace(/\n/g, "<br>")}</p>
-    `;
-  } catch (error) {
-    document.getElementById("aiResult").innerHTML =
-      "❌ Failed to load insights";
-  }
-}
-function openReport() {
-  window.location.href = "report.html";
-}
+loadExpenses(1);

@@ -16,32 +16,49 @@
     }
   </script>
 
- <button class="report-btn" onclick="openReport()">📊 View Report</button>
+<!-- TOP BAR -->
+<div class="top-bar">
 
+  <!-- LEFT SIDE BUTTONS -->
+  <div class="left-actions">
+    <button class="nav-btn" onclick="location.href='income.html'">➕ Income</button>
 
-<div id="aiResult" style="margin-top:20px;"></div>
+    <div class="premium-section" style="display:none;">
+      <button class="nav-btn premium" onclick="location.href='leaderboard.html'">🏆 Leaderboard</button>
+      <button class="nav-btn premium" onclick="location.href='report.html'">📊 Reports</button>
+      <button class="nav-btn premium" onclick="location.href='AIinsights.html'">🤖 AI Insights</button>
+    </div>
+  </div>
 
+  <!-- RIGHT SIDE BUTTONS -->
+  <div class="right-actions">
+    <button id="buyPremiumBtn" class="btn-premium">⭐ Buy Premium</button>
+    <button class="btn-logout" id="logoutBtn">Logout</button>
+  </div>
 
-    <!-- BUY PREMIUM BUTTON (TOP RIGHT) -->
-<button id="buyPremiumBtn" class="premium-btn">Buy Premium ⭐</button>
-   
-
-    
-
-<div class="top-actions">
-  <button class="btn btn-analyze" onclick="getInsights()">
-    📊 Analyze My Spending
-  </button>
-
-  <button class="btn btn-leaderboard" id="showLeaderboard">
-    🏆 View Leaderboard
-  </button>
-
-   <button class="btn btn-logout" id="logoutBtn">
-     Logout
-  </button>
 </div>
 
+<!-- NOTES SECTION -->
+ <div class="container notes-section">
+<div class="note-box">
+  <h3>My Notes</h3>
+
+  <input type="date" id="noteDate" />
+  <input type="text" id="noteText" placeholder="Write your note..." />
+  <button onclick="addNote()">Add Note</button>
+
+  <table class="note-table">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Note</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="notesBody"></tbody>
+  </table>
+</div>
+</div>
 
   <div class="container">
     <h2>Expense Tracker</h2>
@@ -80,10 +97,12 @@
 
     <div class="total" id="total">Total: ₹0</div>
 
-    <!-- Leaderboard container -->
-    <div id="leaderboard"></div>
-
   </div>
+<div class="pagination">
+  <button id="prevPage">⬅ Prev</button>
+  <span id="pageInfo"></span>
+  <button id="nextPage">Next ➡</button>
+</div>
 
   <!-- MAIN JS -->
   <script src="/js/script.js"></script>

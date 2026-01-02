@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Spending Insights</title>
+
+  <link rel="stylesheet" href="/css/style.css" />
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    #aiResult {
+      margin-top: 20px;
+      background: #f9fafb;
+      padding: 15px;
+      border-radius: 8px;
+      line-height: 1.6;
+    }
+
+    .btn-group {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    button {
+      padding: 10px 16px;
+      margin: 5px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .analyze-btn {
+      background: #4caf50;
+      color: white;
+    }
+
+    .back-btn {
+      background: #444;
+      color: white;
+    }
+
+    .premium-note {
+      margin-top: 15px;
+      color: #555;
+      font-size: 14px;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <h2>🤖 AI Spending Insights</h2>
+
+    <div id="aiResult">
+      Click "Analyze" to view your spending insights.
+    </div>
+
+    <div class="btn-group">
+      <button class="analyze-btn" onclick="getInsights()">🔍 Analyze</button>
+    </div>
+
+    <p class="premium-note">
+      * This feature is available for Premium users only.
+    </p>
+  </div>
+
+  <script>
+    async function getInsights() {
+      document.getElementById("aiResult").innerHTML = "Analyzing your expenses... ⏳";
+
+      try {
+        const res = await fetch("http://localhost:3000/api/ai/insights", {
+          headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+          }
+        });
+
+        if (!res.ok) {
+          throw new Error("Not authorized");
+        }
+
+        const data = await res.json();
+
+        document.getElementById("aiResult").innerHTML = `
+          <h3>📊 Your Spending Summary</h3>
+          <p>${data.insight.replace(/\n/g, "<br>")}</p>
+        `;
+      } catch (error) {
+        document.getElementById("aiResult").innerHTML =
+          "❌ Unable to load insights. Please upgrade to Premium or try again later.";
+      }
+    }
+  </script>
+
+</body>
+</html>

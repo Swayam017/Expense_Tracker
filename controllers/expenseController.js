@@ -66,23 +66,32 @@ exports.createExpense = async (req, res) => {
  */
 exports.getExpenses = async (req, res) => {
   try {
-    const expenses = await Expense.findAll({
-      where: { UserId: req.user.id },
-      order: [["date", "DESC"]]
+    const userId = req.user.id;
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    const { count, rows } = await Expense.findAndCountAll({
+      where: { UserId: userId },
+      order: [["date", "DESC"]],
+      limit,
+      offset
     });
 
     res.json({
       success: true,
-      expenses
+      expenses: rows,
+      currentPage: page,
+      totalPages: Math.ceil(count / limit),
+      totalExpenses: count
     });
 
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
+    res.status(500).json({ success: false, error: error.message });
   }
 };
+
 
 /**
  * ================================

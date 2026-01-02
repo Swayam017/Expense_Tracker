@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Income</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+  <div class="container">
+   <h2>Add Income</h2>
+
+<form id="incomeForm">
+  <input type="text" id="source" placeholder="Income Source" required />
+  <input type="number" id="amount" placeholder="Amount" required />
+  <input type="date" id="date" required />
+  <button type="submit" id="add-btn">Add Income</button>
+  <button type="button" id="update-btn" style="display:none;">Update</button>
+</form>
+
+<table id="income-table">
+  <thead>
+    <tr>
+      <th>Source</th>
+      <th>Amount</th>
+      <th>Date</th>
+    </tr>
+  </thead>
+  <tbody id="incomeList"></tbody>
+</table>
+<div class="total" id="total">Total: ₹0</div>
+  </div>
+
+<script src="/js/income.js"></script>
+</body>
+</html>
