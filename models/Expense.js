@@ -18,6 +18,11 @@ const Expense = sequelize.define("Expense", {
         type: DataTypes.STRING,
         allowNull: false
     },
+    note: {
+  type: DataTypes.STRING,
+  allowNull: true
+}
+
 
 });
 

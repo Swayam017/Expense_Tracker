@@ -25,7 +25,6 @@ function getAuthHeader() {
   return { "Authorization": "Bearer " + localStorage.getItem("token") };
 }
 
-
 // ADD EXPENSE
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -34,6 +33,7 @@ form.addEventListener("submit", async (e) => {
   const amount = document.getElementById("amount").value;
   const date = document.getElementById("date").value;
   //const category = document.getElementById("category").value;
+  const note = document.getElementById("note").value;
 
   await fetch("http://localhost:3000/expenses", {
     method: "POST",
@@ -41,7 +41,7 @@ form.addEventListener("submit", async (e) => {
       "Content-Type": "application/json",
       ...getAuthHeader()
     },
-    body: JSON.stringify({ description, amount, date })
+    body: JSON.stringify({ description, amount, date,note })
   });
 
   form.reset();
@@ -72,12 +72,13 @@ async function deleteExpense(id) {
 }
 
 // EDIT EXPENSE
-function editExpense(id, description, amount, date, category) {
+function editExpense(id, description, amount, date, category,note) {
   editId = id;
   document.getElementById("description").value = description;
   document.getElementById("amount").value = amount;
   document.getElementById("date").value = date;
   document.getElementById("category").value = category;
+    document.getElementById("note").value = note;
 
   addBtn.style.display = "none";
   updateBtn.style.display = "inline-block";
@@ -89,7 +90,7 @@ updateBtn.addEventListener("click", async () => {
   const amount = document.getElementById("amount").value;
   const date = document.getElementById("date").value;
   const category = document.getElementById("category").value;
-
+  const note = document.getElementById("note").value;
 
   await fetch(`http://localhost:3000/expenses/${editId}`, {
     method: "PUT",
@@ -97,7 +98,7 @@ updateBtn.addEventListener("click", async () => {
       "Content-Type": "application/json",
       ...getAuthHeader()
     },
-    body: JSON.stringify({ description, amount, date, category })
+    body: JSON.stringify({ description, amount, date, category,note })
   });
 
   form.reset();
@@ -168,8 +169,9 @@ currentPage = page;
       <td>₹${exp.amount}</td>
       <td>${exp.date}</td>
       <td>${exp.category}</td>
+      <td>${exp.note || ""}</td>
       <td>
-        <button onclick="editExpense(${exp.id}, '${exp.description}', '${exp.amount}', '${exp.date}', '${exp.category}')">Edit</button>
+        <button onclick="editExpense(${exp.id}, '${exp.description}', '${exp.amount}', '${exp.date}', '${exp.category}','${exp.note || ""}')">Edit</button>
         <button onclick="deleteExpense(${exp.id})">Delete</button>
       </td>
     `;

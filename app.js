@@ -23,7 +23,7 @@ app.use("/api/notes", require("./routes/noteRoutes"));
 
 
 // Sync database
-db.sync({alter:true})
+db.sync()
   .then(() => console.log("Database synced"))
   .catch(err => console.log(err));
 

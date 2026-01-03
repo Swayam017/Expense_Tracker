@@ -13,7 +13,7 @@ exports.createExpense = async (req, res) => {
 
   try {
     const userId = req.user.id;
-    const { description, amount, date } = req.body;
+    const { description, amount, date ,note} = req.body;
 
     // AI category
     let category = "Other";
@@ -31,6 +31,7 @@ exports.createExpense = async (req, res) => {
         amount,
         date,
         category,
+        note,
         UserId: userId
       },
       { transaction: t }
@@ -104,7 +105,7 @@ exports.updateExpense = async (req, res) => {
   try {
     const userId = req.user.id;
     const expenseId = req.params.id;
-    const { amount, description } = req.body;
+    const { amount, description ,note} = req.body;
        // AI category
     let category = "Other";
 
@@ -128,7 +129,7 @@ exports.updateExpense = async (req, res) => {
     const diff = Number(amount) - Number(expense.amount);
 
     await expense.update(
-  { amount, description, category },
+  { amount, description, category,note },
   { transaction: t }
 );
 

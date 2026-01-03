@@ -67,15 +67,7 @@
       <input type="text" id="description" placeholder="Expense Description" required />
       <input type="number" id="amount" placeholder="Amount (₹)" required />
       <input type="date" id="date" required />
-
-      <select id="category" disabled>
-        <option value="">Select Category</option>
-        <option value="Food">Food</option>
-        <option value="Petrol">Petrol</option>
-        <option value="Shopping">Shopping</option>
-        <option value="Travel">Travel</option>
-        <option value="Salary">Salary</option>
-      </select>
+      <input type="text" id="note" placeholder="Add note (optional)" />
 
       <button type="submit" id="add-btn">Add Expense</button>
       <button type="button" id="update-btn" style="display:none;">Update</button>
@@ -89,6 +81,7 @@
           <th>Amount (₹)</th>
           <th>Date</th>
           <th>Category</th>
+          <th>Note</th>
           <th>Action</th>
         </tr>
       </thead>
