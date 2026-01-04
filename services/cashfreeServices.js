@@ -1,6 +1,16 @@
-const { Cashfree, CFEnvironment }= require ("cashfree-pg");
+const { Cashfree, CFEnvironment } = require ("cashfree-pg");
 
-const cashfree = new Cashfree(CFEnvironment.SANDBOX, "TEST430329ae80e0f32e41a393d78b923034", "TESTaf195616268bd6202eeb3bf8dc458956e7192a85");
+const env =
+  process.env.CASHFREE_ENV === "PRODUCTION"
+    ? CFEnvironment.PRODUCTION
+    : CFEnvironment.SANDBOX;
+
+const cashfree = new Cashfree(
+  env,
+  process.env.CASHFREE_APP_ID,
+  process.env.CASHFREE_SECRET_KEY
+);
+
 
 // Expire after 60 minutes
 const expiryDate = new Date(Date.now() + 60 * 60 * 1000);
@@ -18,7 +28,7 @@ exports.createOrder = async (orderId, orderAmount, orderCurrency='INR', customer
             },
               payment_methods: "cc,nb,upi,paylater",
             order_meta: {
-               return_url: `http://localhost:3000/payment/payment-status?order_id=${orderId}&user_id=${customerId}`,
+               return_url: `${process.env.APP_BASE_URL}/payment/payment-status?order_id=${orderId}&user_id=${customerId}`,
                 
             },
             order_expiry_time:formattedExpiryDate,

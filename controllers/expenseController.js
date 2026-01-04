@@ -14,6 +14,7 @@ exports.createExpense = async (req, res) => {
   try {
     const userId = req.user.id;
     const { description, amount, date ,note} = req.body;
+      const category = "Other";
 
     const expense = await Expense.create(
       {
@@ -106,14 +107,6 @@ exports.updateExpense = async (req, res) => {
     const userId = req.user.id;
     const expenseId = req.params.id;
     const { amount, description ,note} = req.body;
-       // AI category
-    let category = "Other";
-
-      try {
-        category = await getCategoryFromAI(description);
-      } catch (err) {
-        console.error("AI category failed, using default:", err.message);
-      }
 
     const expense = await Expense.findOne({
       where: { id: expenseId, UserId: userId }
@@ -125,6 +118,13 @@ exports.updateExpense = async (req, res) => {
         message: "Expense not found"
       });
     }
+
+          let category = expense.category;
+
+      // ❌ Only call AI if description changed
+      if (description !== expense.description) {
+        category = await getCategoryFromAI(description);
+      }
 
     const diff = Number(amount) - Number(expense.amount);
 

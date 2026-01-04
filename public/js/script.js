@@ -10,7 +10,7 @@ const addBtn = document.getElementById('add-btn');
 const updateBtn = document.getElementById('update-btn');
 const logoutBtn = document.getElementById('logoutBtn');
 const buyPremiumBtn = document.getElementById("buyPremiumBtn");
-const leaderboardBtn = document.getElementById("showLeaderboard");
+
 
 let editId = null;
 
@@ -45,7 +45,7 @@ form.addEventListener("submit", async (e) => {
   });
 
   form.reset();
-  loadExpenses();
+  loadExpenses(currentPage);
   // 🔁 Re-check after AI finishes (2–3 seconds)
 setTimeout(() => {
   loadExpenses(currentPage);
@@ -110,7 +110,7 @@ updateBtn.addEventListener("click", async () => {
   addBtn.style.display = "inline-block";
   editId = null;
 
-  loadExpenses();
+  loadExpenses(currentPage);
 });
 
 // ---------------- PREMIUM LOGIC ----------------
@@ -166,16 +166,19 @@ currentPage = page;
   expenseList.innerHTML = "";
   let total = 0;
 
+
   data.expenses.forEach(exp => {
+    const safeNote = (exp.note || "").replace(/'/g, "\\'");
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${exp.description}</td>
       <td>₹${exp.amount}</td>
       <td>${exp.date}</td>
       <td>${exp.category}</td>
-      <td>${exp.note || ""}</td>
+      <td>${safeNote}</td>
       <td>
-        <button onclick="editExpense(${exp.id}, '${exp.description}', '${exp.amount}', '${exp.date}', '${exp.category}','${exp.note || ""}')">Edit</button>
+        <button onclick="editExpense(${exp.id}, '${exp.description}', '${exp.amount}', '${exp.date}', 
+        '${exp.category}','${safeNote}')">Edit</button>
         <button onclick="deleteExpense(${exp.id})">Delete</button>
       </td>
     `;
@@ -215,7 +218,6 @@ function renderPagination(current, totalPages) {
 
 
 document.addEventListener("DOMContentLoaded", () => {
-  loadNotes();
   loadExpenses(currentPage);
 });
 

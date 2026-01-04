@@ -3,6 +3,8 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const User = require("../models/User");
 const ForgotPassword = require("../models/ForgotPasswordRequest");
+const sendResetEmail = require("../utils/email");
+
 
 // ------------------ CREATE RESET LINK ------------------
 router.post("/forgot-password", async (req, res) => {
@@ -15,11 +17,12 @@ router.post("/forgot-password", async (req, res) => {
 
   const request = await ForgotPassword.create({ UserId: user.id });
 
-  const resetLink = `http://localhost:3000/password/reset/${request.id}`;
+  const resetLink = `${process.env.APP_BASE_URL}/password/reset/${request.id}`;
 
   console.log("RESET LINK:", resetLink);
+  await sendResetEmail(user.email, resetLink);
 
-  res.json({ message: "Reset link generated", resetLink });
+  res.json({ message: "Password reset link sent to your email" });
 });
 
 // ------------------ LOAD RESET PAGE ------------------
