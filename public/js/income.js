@@ -17,7 +17,7 @@ if (!token) {
 }
 
 async function loadIncome() {
-  const res = await fetch("http://localhost:3000/income", {
+  const res = await fetch("/income", {
     headers: getAuthHeader()
   });
 
@@ -59,7 +59,7 @@ document.getElementById("incomeForm").addEventListener("submit", async (e) => {
   const amount = document.getElementById("amount").value;
   const date = document.getElementById("date").value;
 
-  await fetch("http://localhost:3000/income", {
+  await fetch("/income", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -87,7 +87,7 @@ updateBtn.addEventListener("click", async () => {
   const amount = document.getElementById("amount").value;
   const date = document.getElementById("date").value;
 
-  await fetch(`http://localhost:3000/income/${editId}`, {
+  await fetch(`${process.env.APP_BASE_URL}/income/${editId}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -105,7 +105,7 @@ updateBtn.addEventListener("click", async () => {
 });
 
 async function deleteIncome(id) {
-  await fetch(`http://localhost:3000/income/${id}`, {
+  await fetch(`/income/${id}`, {
     method: "DELETE",
     headers: getAuthHeader()
   });

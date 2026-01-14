@@ -3,7 +3,7 @@ async function getInsights() {
   document.getElementById("aiResult").innerHTML = "Analyzing... ⏳";
 
   try {
-    const res = await fetch("http://localhost:3000/api/ai/insights", {
+    const res = await fetch("/api/ai/insights", {
       headers: {
         "Authorization": "Bearer " + localStorage.getItem("token")
       }

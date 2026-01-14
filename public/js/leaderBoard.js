@@ -1,7 +1,7 @@
 // ---------------- LEADERBOARD ----------------
 
 leaderboardBtn.addEventListener("click", async () => {
-  const res = await fetch("http://localhost:3000/premium/leaderboard", {
+  const res = await fetch("/premium/leaderboard", {
     headers: getAuthHeader()
   });
 

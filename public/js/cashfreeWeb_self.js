@@ -4,7 +4,7 @@ document.getElementById("renderBtn").addEventListener("click", async () => {
     try {
         let token = localStorage.getItem("token");
         //  Send token in Authorization header
-        const response = await fetch("http://localhost:3000/payment/pay", {
+        const response = await fetch("/payment/pay", {
             method: "POST",
             headers: {
         "Content-Type": "application/json",

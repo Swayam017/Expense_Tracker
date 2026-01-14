@@ -35,7 +35,7 @@ form.addEventListener("submit", async (e) => {
   //const category = document.getElementById("category").value;
   const note = document.getElementById("note").value;
 
-  await fetch("http://localhost:3000/expenses", {
+  await fetch("/expenses", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -54,7 +54,7 @@ setTimeout(() => {
 
 // DELETE EXPENSE
 async function deleteExpense(id) {
-  await fetch(`http://localhost:3000/expenses/${id}`, {
+  await fetch(`/expenses/${id}`, {
     method: "DELETE",
     headers: getAuthHeader()
   });
@@ -96,7 +96,7 @@ updateBtn.addEventListener("click", async () => {
   const category = document.getElementById("category").value;
   const note = document.getElementById("note").value;
 
-  await fetch(`http://localhost:3000/expenses/${editId}`, {
+  await fetch(`/expenses/${editId}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -152,7 +152,7 @@ document.getElementById("pageSizeSelect").addEventListener("change", (e) => {
 // LOAD EXPENSES WITH PAGINATION
 async function loadExpenses(page = 1) {
   const res = await fetch(
-    `http://localhost:3000/expenses?page=${page}&limit=${pageSize}`,
+    `/expenses?page=${page}&limit=${pageSize}`,
     { headers: getAuthHeader() }
   );
 
