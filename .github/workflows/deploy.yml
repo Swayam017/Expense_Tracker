@@ -23,6 +23,13 @@ jobs:
         run: npm install
 
       - name: Run tests
+        env:
+          NODE_ENV: test
+          DB_USER: test_user
+          DB_NAME: test_db
+          DB_PASSWORD: test_pass
+          DB_HOST: localhost
+          JWT_SECRET: test_jwt_secret
         run: npm test
 
       - name: Security audit
