@@ -44,7 +44,7 @@ exports.createOrder = async (orderId, orderAmount, orderCurrency='INR', customer
     }
 };
 
-// PG v2 — Check Status
+
 exports.getPaymentStatusFromCF = async (orderId) => {
     try {
         console.log("Checking Status For:", orderId);
