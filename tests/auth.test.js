@@ -9,7 +9,7 @@ describe("Auth API", () => {
         email: "fake@email.com",
         password: "wrongpass"
       });
-
+//401 locally, 500 in CI. Without DB
     expect([401, 500]).toContain(res.statusCode);
 
   });
