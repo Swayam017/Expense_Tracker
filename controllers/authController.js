@@ -1,12 +1,16 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const secretKey = "MY_SECRET_KEY";  // keep same as auth.js
+const secretKey = process.env.JWT_SECRET;
 
 
 exports.signUp = async (req, res) => {
     try {
         const { username, email, password } = req.body;
+
+        if (!username || !email || !password) {
+  return res.status(400).json({ error: "All fields are required" });
+}
 
         const existing = await User.findOne({ where: { email } });
         if (existing) return res.status(400).json({ error: "Email already exists" });
@@ -26,11 +30,15 @@ exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
+        if (!email || !password) {
+  return res.status(400).json({ error: "Email and password are required" });
+}
+
         const user = await User.findOne({ where: { email } });
-        if (!user) return res.status(400).json({ error: "Invalid email or password" });
+        if (!user) return res.status(401).json({ error: "Invalid email or password" });
 
         const match = await bcrypt.compare(password, user.password);
-        if (!match) return res.status(400).json({ error: "Invalid email or password" });
+        if (!match) return res.status(401).json({ error: "Invalid email or password" });
 
         //  UPDATED JWT PAYLOAD 
         const token = jwt.sign(
