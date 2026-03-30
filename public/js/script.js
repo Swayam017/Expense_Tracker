@@ -32,7 +32,7 @@ form.addEventListener("submit", async (e) => {
   const description = document.getElementById("description").value;
   const amount = document.getElementById("amount").value;
   const date = document.getElementById("date").value;
-  //const category = document.getElementById("category").value;
+  const category = document.getElementById("category").value;
   const note = document.getElementById("note").value;
 
   await fetch("/expenses", {
@@ -76,12 +76,12 @@ async function deleteExpense(id) {
 }
 
 // EDIT EXPENSE
-function editExpense(id, description, amount, date, category,note) {
+function editExpense(id, description, amount, date,note) {
   editId = id;
   document.getElementById("description").value = description;
   document.getElementById("amount").value = amount;
   document.getElementById("date").value = date;
-  document.getElementById("category").value = category;
+
     document.getElementById("note").value = note;
 
   addBtn.style.display = "none";
@@ -93,7 +93,7 @@ updateBtn.addEventListener("click", async () => {
   const description = document.getElementById("description").value;
   const amount = document.getElementById("amount").value;
   const date = document.getElementById("date").value;
-  const category = document.getElementById("category").value;
+  //const category = document.getElementById("category").value;
   const note = document.getElementById("note").value;
 
   await fetch(`/expenses/${editId}`, {
@@ -102,7 +102,7 @@ updateBtn.addEventListener("click", async () => {
       "Content-Type": "application/json",
       ...getAuthHeader()
     },
-    body: JSON.stringify({ description, amount, date, category,note })
+    body: JSON.stringify({ description, amount, date,note })
   });
 
   form.reset();
@@ -178,7 +178,7 @@ currentPage = page;
       <td>${safeNote}</td>
       <td>
         <button onclick="editExpense(${exp.id}, '${exp.description}', '${exp.amount}', '${exp.date}', 
-        '${exp.category}','${safeNote}')">Edit</button>
+        '','${safeNote}')">Edit</button>
         <button onclick="deleteExpense(${exp.id})">Delete</button>
       </td>
     `;

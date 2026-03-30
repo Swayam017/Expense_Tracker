@@ -1,10 +1,11 @@
 require("dotenv").config();
 const app = require("./app");
-const db = require("./utils/db_connections");
+const connectDB = require("./utils/db_connections");
+// Connect MongoDB
 
 const PORT = process.env.PORT || 3000;
 
-db.sync()
+connectDB()
   .then(() => {
     console.log("Database synced");
     app.listen(PORT, () => {

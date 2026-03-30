@@ -1,27 +1,34 @@
 const Expense = require("../models/Expense");
 const Income = require("../models/Income");
-const { Op } = require("sequelize");
 
+/**
+ * =======================
+ * GET REPORT
+ * =======================
+ */
 exports.getReport = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
 
-    const expenses = await Expense.findAll({
-      where: { UserId: userId },
-      order: [["date", "ASC"]],
-    });
+    // Fetch expenses
+    const expenses = await Expense.find({ user: userId })
+      .sort({ date: 1 }); // ASC
 
-    const incomes = await Income.findAll({
-      where: { UserId: userId },
-      order: [["date", "ASC"]],
-    });
+    // Fetch incomes
+    const incomes = await Income.find({ user: userId })
+      .sort({ date: 1 }); // ASC
 
     res.json({
       success: true,
       expenses,
       incomes
     });
+
   } catch (err) {
-    res.status(500).json({ message: "Failed to load report" });
+    res.status(500).json({
+      success: false,
+      message: "Failed to load report",
+      error: err.message
+    });
   }
 };

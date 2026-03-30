@@ -1,15 +1,13 @@
 const Income = require("../models/Income");
-const User = require("../models/User");
-const sequelize = require("../utils/db_connections");
 
-// =======================
-// CREATE INCOME
-// =======================
+/**
+ * =======================
+ * CREATE INCOME
+ * =======================
+ */
 exports.createIncome = async (req, res) => {
-  const t = await sequelize.transaction();
-
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
     const { source, amount, date } = req.body;
 
     if (!source || !amount || !date) {
@@ -19,25 +17,20 @@ exports.createIncome = async (req, res) => {
       });
     }
 
-    const income = await Income.create(
-      {
-        source,
-        amount,
-        date,
-        UserId: userId
-      },
-      { transaction: t }
-    );
-
-    await t.commit();
+    const income = await Income.create({
+      source,
+      amount,
+      date,
+      user: userId
+    });
 
     res.status(201).json({
       success: true,
       message: "Income added successfully",
       income
     });
+
   } catch (error) {
-    await t.rollback();
     res.status(500).json({
       success: false,
       error: error.message
@@ -45,20 +38,22 @@ exports.createIncome = async (req, res) => {
   }
 };
 
-// =======================
-// GET ALL INCOME
-// =======================
+
+/**
+ * =======================
+ * GET ALL INCOME
+ * =======================
+ */
 exports.getIncome = async (req, res) => {
   try {
-    const incomes = await Income.findAll({
-      where: { UserId: req.user.id },
-      order: [["date", "DESC"]]
-    });
+    const incomes = await Income.find({ user: req.user._id })
+      .sort({ date: -1 });
 
     res.status(200).json({
       success: true,
       incomes
     });
+
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -67,19 +62,22 @@ exports.getIncome = async (req, res) => {
   }
 };
 
-// =======================
-// UPDATE INCOME
-// =======================
-exports.updateIncome = async (req, res) => {
-  const t = await sequelize.transaction();
 
+/**
+ * =======================
+ * UPDATE INCOME
+ * =======================
+ */
+exports.updateIncome = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
     const incomeId = req.params.id;
+
     const { source, amount, date } = req.body;
 
     const income = await Income.findOne({
-      where: { id: incomeId, UserId: userId }
+      _id: incomeId,
+      user: userId
     });
 
     if (!income) {
@@ -89,20 +87,20 @@ exports.updateIncome = async (req, res) => {
       });
     }
 
-    income.source = source ?? income.source;
-    income.amount = amount ?? income.amount;
-    income.date = date ?? income.date;
+    // Update only if values provided
+    if (source !== undefined) income.source = source;
+    if (amount !== undefined) income.amount = amount;
+    if (date !== undefined) income.date = date;
 
-    await income.save({ transaction: t });
-    await t.commit();
+    await income.save();
 
     res.status(200).json({
       success: true,
       message: "Income updated successfully",
       income
     });
+
   } catch (error) {
-    await t.rollback();
     res.status(500).json({
       success: false,
       error: error.message
@@ -110,18 +108,20 @@ exports.updateIncome = async (req, res) => {
   }
 };
 
-// =======================
-// DELETE INCOME
-// =======================
-exports.deleteIncome = async (req, res) => {
-  const t = await sequelize.transaction();
 
+/**
+ * =======================
+ * DELETE INCOME
+ * =======================
+ */
+exports.deleteIncome = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
     const incomeId = req.params.id;
 
     const income = await Income.findOne({
-      where: { id: incomeId, UserId: userId }
+      _id: incomeId,
+      user: userId
     });
 
     if (!income) {
@@ -131,15 +131,14 @@ exports.deleteIncome = async (req, res) => {
       });
     }
 
-    await income.destroy({ transaction: t });
-    await t.commit();
+    await Income.findByIdAndDelete(incomeId);
 
     res.status(200).json({
       success: true,
       message: "Income deleted successfully"
     });
+
   } catch (error) {
-    await t.rollback();
     res.status(500).json({
       success: false,
       error: error.message

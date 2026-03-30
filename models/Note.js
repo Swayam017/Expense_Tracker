@@ -1,19 +1,28 @@
-const { DataTypes } = require("sequelize");
-const sequelize = require("../utils/db_connections");
+const mongoose = require("mongoose");
 
-const Note = sequelize.define("Note", {
-  note: {
-    type: DataTypes.STRING,
-    allowNull: false
+const noteSchema = new mongoose.Schema(
+  {
+    note: {
+      type: String,
+      required: true,
+      trim: true
+    },
+
+    date: {
+      type: Date,
+      required: true
+    },
+
+    // Reference to User (replaces UserId)
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true
+    }
   },
-  date: {
-    type: DataTypes.DATEONLY,
-    allowNull: false
-  },
-  UserId: {                     
-    type: DataTypes.INTEGER,
-    allowNull: false
+  {
+    timestamps: true
   }
-});
+);
 
-module.exports = Note;
+module.exports = mongoose.model("Note", noteSchema);

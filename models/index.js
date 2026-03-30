@@ -1,26 +1,18 @@
-const Sequelize = require("sequelize");
-const db = require("../utils/db_connections");
+const mongoose = require("mongoose");
 
-// Import models
+// Import all models
 const User = require("./User");
 const Expense = require("./Expense");
 const Income = require("./Income");
 const Note = require("./Note");
-// Associations
-User.hasMany(Expense);
-Expense.belongsTo(User);
+const ForgotPasswordRequest = require("./ForgotPasswordRequest");
 
-User.hasMany(Income);
-Income.belongsTo(User);
-
-User.hasMany(Note, { onDelete: "CASCADE" });
-Note.belongsTo(User);
-
-
+// Export models
 module.exports = {
+  mongoose,
   User,
   Expense,
   Income,
   Note,
-  db
+  ForgotPasswordRequest
 };

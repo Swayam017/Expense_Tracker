@@ -1,6 +1,5 @@
 const Expense = require("../models/Expense");
 const User = require("../models/User");
-const sequelize = require("../utils/db_connections");
 const { getCategoryFromAI } = require("../services/aiCategoryService");
 
 /**
@@ -9,32 +8,26 @@ const { getCategoryFromAI } = require("../services/aiCategoryService");
  * ================================
  */
 exports.createExpense = async (req, res) => {
-  const t = await sequelize.transaction();
-
   try {
-    const userId = req.user.id;
-    const { description, amount, date ,note} = req.body;
-      const category = "Other";
+    const userId = req.user._id;
+    const { description, amount, date, note } = req.body;
 
-    const expense = await Expense.create(
-      {
-        description,
-        amount,
-        date,
-        category,
-        note,
-        UserId: userId
-      },
-      { transaction: t }
-    );
+    const category = "Other";
 
-    // Increment totalSpent safely
-    await User.increment(
-      { totalSpent: amount },
-      { where: { id: userId }, transaction: t }
-    );
+    // Create expense
+    const expense = await Expense.create({
+      description,
+      amount,
+      date,
+      category,
+      note,
+      user: userId
+    });
 
-    await t.commit();
+    // 🔥 Increment totalSpent
+    await User.findByIdAndUpdate(userId, {
+      $inc: { totalSpent: amount }
+    });
 
     res.status(201).json({
       success: true,
@@ -42,18 +35,14 @@ exports.createExpense = async (req, res) => {
       expense
     });
 
-    // 3️⃣ Run AI classification in background (non-blocking)
+    // 🔥 AI category update (background)
     getCategoryFromAI(description)
-      .then(category => {
-        return Expense.update(
-          { category },
-          { where: { id: expense.id } }
-        );
+      .then((category) => {
+        return Expense.findByIdAndUpdate(expense._id, { category });
       })
-      .catch(err => console.error("AI category failed:", err));
+      .catch((err) => console.error("AI category failed:", err));
 
   } catch (error) {
-    await t.rollback();
     res.status(500).json({
       success: false,
       error: error.message
@@ -61,36 +50,42 @@ exports.createExpense = async (req, res) => {
   }
 };
 
+
 /**
  * ================================
- * GET ALL EXPENSES
+ * GET ALL EXPENSES (Pagination)
  * ================================
  */
 exports.getExpenses = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
 
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    const offset = (page - 1) * limit;
 
-    const { count, rows } = await Expense.findAndCountAll({
-      where: { UserId: userId },
-      order: [["date", "DESC"]],
-      limit,
-      offset
-    });
+    const skip = (page - 1) * limit;
+
+    // 🔥 count + fetch
+    const total = await Expense.countDocuments({ user: userId });
+
+    const expenses = await Expense.find({ user: userId })
+      .sort({ date: -1 })
+      .skip(skip)
+      .limit(limit);
 
     res.json({
       success: true,
-      expenses: rows,
+      expenses,
       currentPage: page,
-      totalPages: Math.ceil(count / limit),
-      totalExpenses: count
+      totalPages: Math.ceil(total / limit),
+      totalExpenses: total
     });
 
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
   }
 };
 
@@ -101,15 +96,14 @@ exports.getExpenses = async (req, res) => {
  * ================================
  */
 exports.updateExpense = async (req, res) => {
-  const t = await sequelize.transaction();
-
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
     const expenseId = req.params.id;
-    const { amount, description ,note} = req.body;
+    const { amount, description, note } = req.body;
 
     const expense = await Expense.findOne({
-      where: { id: expenseId, UserId: userId }
+      _id: expenseId,
+      user: userId
     });
 
     if (!expense) {
@@ -119,26 +113,27 @@ exports.updateExpense = async (req, res) => {
       });
     }
 
-          let category = expense.category;
+    let category = expense.category;
 
-      // ❌ Only call AI if description changed
-      if (description !== expense.description) {
-        category = await getCategoryFromAI(description);
-      }
+    // Call AI only if description changed
+    if (description && description !== expense.description) {
+      category = await getCategoryFromAI(description);
+    }
 
     const diff = Number(amount) - Number(expense.amount);
 
-    await expense.update(
-  { amount, description, category,note },
-  { transaction: t }
-);
+    // Update expense
+    expense.amount = amount;
+    expense.description = description;
+    expense.category = category;
+    expense.note = note;
 
-    await User.increment(
-      { totalSpent: diff },
-      { where: { id: userId }, transaction: t }
-    );
+    await expense.save();
 
-    await t.commit();
+    // Update totalSpent
+    await User.findByIdAndUpdate(userId, {
+      $inc: { totalSpent: diff }
+    });
 
     res.json({
       success: true,
@@ -146,7 +141,6 @@ exports.updateExpense = async (req, res) => {
     });
 
   } catch (error) {
-    await t.rollback();
     res.status(500).json({
       success: false,
       error: error.message
@@ -154,20 +148,20 @@ exports.updateExpense = async (req, res) => {
   }
 };
 
+
 /**
  * ================================
  * DELETE EXPENSE
  * ================================
  */
 exports.deleteExpense = async (req, res) => {
-  const t = await sequelize.transaction();
-
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
     const expenseId = req.params.id;
 
     const expense = await Expense.findOne({
-      where: { id: expenseId, UserId: userId }
+      _id: expenseId,
+      user: userId
     });
 
     if (!expense) {
@@ -177,14 +171,13 @@ exports.deleteExpense = async (req, res) => {
       });
     }
 
-    await User.decrement(
-      { totalSpent: expense.amount },
-      { where: { id: userId }, transaction: t }
-    );
+    // 🔥 Decrement totalSpent
+    await User.findByIdAndUpdate(userId, {
+      $inc: { totalSpent: -expense.amount }
+    });
 
-    await expense.destroy({ transaction: t });
-
-    await t.commit();
+    // Delete expense
+    await Expense.findByIdAndDelete(expenseId);
 
     res.json({
       success: true,
@@ -192,7 +185,6 @@ exports.deleteExpense = async (req, res) => {
     });
 
   } catch (error) {
-    await t.rollback();
     res.status(500).json({
       success: false,
       error: error.message
